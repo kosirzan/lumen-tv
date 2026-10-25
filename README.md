@@ -64,7 +64,7 @@ Debug APKs are for sideloading; they use the local Android debug signing key.
 No private release key or TMDB credential is in this source. To keep updates
 installable without deleting local data, retain your own signing keystore.
 The supplied workflow builds APKs and reports and runs API 23 emulator checks;
-it has not run on GitHub until the project is uploaded and Actions executes.
+see the repository's Actions tab for current GitHub CI results.
 Public GitHub Actions normally have a free tier; private-repository quota limits
 and terms are controlled by GitHub. This project provisions no paid resource.
 

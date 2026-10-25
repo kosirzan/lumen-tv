@@ -7,8 +7,9 @@ checks. Current test evidence is in TESTING.md and the evidence directory.
 ## GitHub publication
 
 The user created the public repository `kosirzan/lumen-tv`. Source, documentation,
-test evidence and the existing debug APK are being uploaded through the connected
-GitHub account. The APK lives in `downloads/`; its build-time validation is
+test evidence and the existing debug APK have been uploaded through the connected
+GitHub account. The public APK was downloaded and its SHA-256 verified against
+the validated local build. The APK lives in `downloads/`; its build-time validation is
 recorded in TESTING.md. GitHub Actions results must be checked separately; the
 prior cloud build and emulator tests do not prove that a GitHub run succeeded.
 
@@ -37,12 +38,11 @@ Do not infer playback success from a successful HTTP response, APK build, emulat
 launch, native diagnostic clip, or source code alone. If FramexTV cannot run on the
 TV's supported WebView, document that hardware/platform limitation honestly.
 
-## Publication attempt: repository access still required
+## Earlier publication permission issue (resolved)
 
 On the first upload attempt, both Git blob creation and a normal Contents API
 file creation returned HTTP 403, `Resource not accessible by integration`.
-No files were written remotely. The GitHub app installation is configured for
-selected repositories; ensure `kosirzan/lumen-tv` is selected in installation
-162468732 before retrying. Account-owner push permission does not prove that the
+No files were written during that failed attempt. After the owner updated the
+GitHub app's selected-repository access, the retry uploaded the full project. Account-owner push permission does not prove that the
 app's installation token can write. Recheck the remote main head before publishing
 because the owner may have changed the initial README meanwhile.

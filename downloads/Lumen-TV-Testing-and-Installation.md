@@ -21,7 +21,7 @@
 | Live TMDB requests with personal key | NOT TESTED — no personal key supplied |
 | FramexTV first frame / controls / telemetry / resume | NOT TESTED |
 | Physical Philips television | NOT TESTED |
-| GitHub repository / release / Actions | NOT CREATED / NOT RUN — repository creation requires sign-in |
+| GitHub repository | Published at https://github.com/kosirzan/lumen-tv |\n| GitHub Actions | See repository Actions for current results; original evidence below ran in the cloud workspace |
 
 ## Environment and scope
 
@@ -93,8 +93,8 @@ requires uninstalling and losing local data.
 
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
-instrumentation output and screenshots. GitHub CI is supplied as source but has
-not been executed on GitHub. See CONTINUATION.md for exact publication steps.
+instrumentation output and screenshots. GitHub CI is now available in the repository Actions tab. The original evidence
+in this report ran in the cloud workspace. See CONTINUATION.md for remaining work.
 
 
 ---
