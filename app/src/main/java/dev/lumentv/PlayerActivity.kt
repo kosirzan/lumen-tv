@@ -1,0 +1,195 @@
+package dev.lumentv
+
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.AlertDialog
+import android.graphics.Color
+import android.net.Uri
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.SystemClock
+import android.view.KeyEvent
+import android.view.Gravity
+import android.view.View
+import android.webkit.*
+import android.widget.*
+import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
+import androidx.media3.common.PlaybackException
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
+import org.json.JSONObject
+
+/** Native remote controls operate only the provider's documented postMessage API. */
+class PlayerActivity : Activity() {
+    private var playback: Playback? = null
+    private var demo = false
+    private var web: WebView? = null
+    private var native: ExoPlayer? = null
+    private lateinit var surface: FrameLayout
+    private lateinit var status: TextView
+    private lateinit var playButton: Button
+    private val handler = Handler(Looper.getMainLooper())
+    private var paused = false
+    private var active = false
+    private var seconds = 0.0
+    private var duration = 0.0
+    private var lastTelemetry = 0L
+    private var telemetrySequence = 0L
+    private var started = 0L
+    private var savedAt = 0L
+    private var error = "None"
+    private var webVersion = "Unknown"
+    private var provider = "auto"
+    private var muted = false
+    private var pendingPoll = false
+    private var initialFocus = false
+    private val tick = object : Runnable {
+        override fun run() {
+            if(!active) return
+            native?.let { seconds = it.currentPosition / 1000.0; duration = it.duration.coerceAtLeast(0) / 1000.0; lastTelemetry = SystemClock.elapsedRealtime(); renderStatus() }
+            if(web != null && !pendingPoll) {
+                pendingPoll = true
+                web?.evaluateJavascript("JSON.stringify(window.framexState || {})") { raw ->
+                    pendingPoll = false
+                    if(active) runCatching {
+                        val decoded = org.json.JSONTokener(raw).nextValue() as? String ?: "{}"
+                        val state = JSONObject(decoded)
+                        val time = state.optDouble("currentTime",Double.NaN); val length = state.optDouble("duration",Double.NaN)
+                        if(ProgressPolicy.valid(time,length) && state.optLong("sequence") > telemetrySequence) { telemetrySequence = state.optLong("sequence"); seconds = time; duration = length; lastTelemetry = SystemClock.elapsedRealtime() }
+                    }
+                    if(active) renderStatus()
+                }
+            }
+            val now = SystemClock.elapsedRealtime()
+            if(now - savedAt >= 5000) { save(); savedAt = now }
+            if(!paused && web != null && now - (if(lastTelemetry == 0L) started else lastTelemetry) > 30000) status.text = "No playback progress received. Open Diagnostics; update WebView or try another provider."
+            handler.postDelayed(this,2000)
+        }
+    }
+    @SuppressLint("SetJavaScriptEnabled")
+    override fun onCreate(state: Bundle?) {
+        super.onCreate(state); Ui.setup(this)
+        demo = intent.getBooleanExtra("demo",false)
+        @Suppress("DEPRECATION") val item = intent.getSerializableExtra("playback") as? Playback
+        playback = item
+        if(!demo && item == null) { finish(); return }
+        if(!demo && !Store(this).providerAllowed) {
+            Ui.message(this,"Playback permission required","Enable FramexTV in Settings only for content you have permission to access.")
+            val root = Ui.column(this); root.addView(Ui.text(this,"FramexTV is disabled")); root.addView(Ui.button(this,"Back") { finish() }); setContentView(root); return
+        }
+        seconds = state?.getDouble("seconds") ?: item?.seconds ?: 0.0
+        duration = state?.getDouble("duration") ?: item?.duration ?: 0.0
+        provider = Store(this).provider
+        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(Color.BLACK); setPadding(Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,12),Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,12)) }
+        status = Ui.text(this,if(demo) "Offline playback diagnostic" else item!!.label,15f); root.addView(status)
+        surface = FrameLayout(this).apply { descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS }; root.addView(surface,LinearLayout.LayoutParams(-1,0,1f))
+        val controls = Ui.row(this).apply { gravity = Gravity.CENTER }
+        controls.addView(Ui.button(this,"−10s") { seek(-10.0) })
+        playButton = Ui.button(this,"Pause") { togglePause() }; controls.addView(playButton)
+        controls.addView(Ui.button(this,"+10s") { seek(10.0) })
+        controls.addView(Ui.button(this,"Audio") { muted = !muted; native?.volume = if(muted) 0f else 1f; command(JSONObject().put("action","setVolume").put("volume",if(muted) 0 else 1)) })
+        if(!demo) {
+            controls.addView(Ui.button(this,"Provider") { chooseProvider() })
+            controls.addView(Ui.button(this,"Subtitles") { AlertDialog.Builder(this).setTitle("Provider subtitle track").setMessage("Track availability and language are controlled by FramexTV. Index 0 is the first track.").setPositiveButton("Choose") { _, _ -> AlertDialog.Builder(this).setTitle("Track index").setItems((0..7).map { "Track $it" }.toTypedArray()) { _, index -> command(JSONObject().put("action","setSubtitle").put("index",index)) }.setNegativeButton("Cancel",null).show() }.setNegativeButton("Cancel",null).show() })
+        }
+        controls.addView(Ui.button(this,"Retry") { retry() })
+        controls.addView(Ui.button(this,"Diagnostics") { diagnostics() })
+        controls.addView(Ui.button(this,"Back") { finish() })
+        root.addView(HorizontalScrollView(this).apply { isFocusable = false; addView(controls) })
+        setContentView(root)
+        started = SystemClock.elapsedRealtime()
+        if(demo) setupNative() else setupWeb()
+        playButton.requestFocus()
+    }
+    private fun setupNative() {
+        native = ExoPlayer.Builder(this).build().apply player@ {
+            val view = PlayerView(this@PlayerActivity).apply { player = this@player; useController = false; isFocusable = false }
+            surface.addView(view,FrameLayout.LayoutParams(-1,-1))
+            addListener(object : Player.Listener {
+                override fun onPlayerError(e: PlaybackException) { error = "${e.errorCodeName}: ${e.message}"; status.text = "Playback failed. Open Diagnostics or Retry." }
+            })
+            setMediaItem(MediaItem.fromUri(Uri.parse("android.resource://$packageName/${R.raw.diagnostic}")))
+            seekTo((seconds * 1000).toLong()); prepare(); playWhenReady = !paused
+        }
+    }
+    @SuppressLint("SetJavaScriptEnabled")
+    private fun setupWeb() {
+        muted = false
+        try {
+            val w = WebView(this); web = w
+            w.settings.apply {
+                javaScriptEnabled = true; domStorageEnabled = true
+                mediaPlaybackRequiresUserGesture = false
+                allowFileAccess = false; allowContentAccess = false
+                mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
+                setSupportMultipleWindows(false); javaScriptCanOpenWindowsAutomatically = false
+                builtInZoomControls = false; displayZoomControls = false
+            }
+            CookieManager.getInstance().setAcceptThirdPartyCookies(w,false)
+            w.isFocusable = false; w.isFocusableInTouchMode = false
+            webVersion = w.settings.userAgentString.substringAfter("Chrome/","unknown").substringBefore(" ")
+            w.webChromeClient = object : WebChromeClient() {
+                override fun onPermissionRequest(request: PermissionRequest) { request.deny() }
+                override fun onConsoleMessage(message: ConsoleMessage): Boolean { return true } // Never log provider URLs or tokens.
+            }
+            w.webViewClient = object : WebViewClient() {
+                override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = request.isForMainFrame
+                @Deprecated("Legacy WebView compatibility") override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean = true
+                override fun onReceivedError(view: WebView, request: WebResourceRequest, e: WebResourceError) {
+                    if(request.isForMainFrame || request.url.host in listOf("framextv.xyz","www.framextv.xyz")) { error = "WebView error ${e.errorCode}"; status.text = "Provider connection failed. Open Diagnostics or Retry." }
+                }
+                override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: WebResourceResponse) {
+                    if(request.url.host in listOf("framextv.xyz","www.framextv.xyz")) { error = "Provider HTTP ${response.statusCode}" }
+                }
+                override fun onReceivedSslError(view: WebView, ssl: android.webkit.SslErrorHandler, e: android.net.http.SslError) { ssl.cancel(); error = "TLS certificate validation failed"; status.text = "Secure connection failed. Check the TV date/time." }
+            }
+            val p = playback!!.copy(seconds=seconds,duration=duration)
+            val url = Framex.embed(p,provider,autoplay=!paused)
+            // The host is ours, the iframe is cross-origin; no addJavascriptInterface is exposed.
+            val html = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src https://framextv.xyz https://www.framextv.xyz; script-src 'unsafe-inline'; style-src 'unsafe-inline'"><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#000;overflow:hidden}</style></head><body><iframe id="player" src="$url" allow="autoplay; fullscreen; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe><script>
+            (function(){var f=document.getElementById('player');window.framexState={};window.sendFramex=function(c){f.contentWindow.postMessage(c,'https://framextv.xyz');f.contentWindow.postMessage(c,'https://www.framextv.xyz');};window.addEventListener('message',function(e){if(e.source!==f.contentWindow||(e.origin!=='https://framextv.xyz'&&e.origin!=='https://www.framextv.xyz'))return;var d=e.data;if(d&&d.event==='frameXTV:timeupdate'&&typeof d.currentTime==='number'&&typeof d.duration==='number'&&isFinite(d.currentTime)&&isFinite(d.duration)){window.framexState={currentTime:d.currentTime,duration:d.duration,sequence:(window.framexState.sequence||0)+1};}});})();
+            </script></body></html>"""
+            surface.addView(w,FrameLayout.LayoutParams(-1,-1))
+            w.loadDataWithBaseURL("https://appassets.androidplatform.net/player/",html,"text/html","UTF-8",null)
+        } catch (_: Exception) { error = "WebView unavailable"; status.text = "Android System WebView could not start. Update/enable it in TV settings." }
+    }
+    private fun command(json: JSONObject) { web?.evaluateJavascript("window.sendFramex && window.sendFramex($json)",null) }
+    private fun togglePause() { paused = !paused; native?.playWhenReady = !paused; command(JSONObject().put("action",if(paused) "pause" else "play")); playButton.text = if(paused) "Play" else "Pause" }
+    private fun seek(offset: Double) { native?.let { it.seekTo((it.currentPosition + (offset * 1000).toLong()).coerceIn(0,it.duration.coerceAtLeast(0))) }; command(JSONObject().put("action","seekBy").put("seconds",offset)) }
+    private fun chooseProvider() { AlertDialog.Builder(this).setTitle("Playback provider").setItems(Framex.providers.toTypedArray()) { _, i -> provider = Framex.providers[i]; Store(this).provider = provider; retry() }.setNegativeButton("Cancel",null).show() }
+    private fun renderStatus() { if(error != "None") return; val label = if(demo) "Offline diagnostic" else playback!!.label; status.text = "$label  ·  ${format(seconds)} / ${format(duration)}" }
+    private fun format(value: Double): String { val s = value.toLong().coerceAtLeast(0); return "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) }
+    private fun save() { if(!demo) playback?.let { Store(this).save(it.copy(seconds=seconds,duration=duration)) } }
+    private fun retry() { save(); release(); surface.removeAllViews(); error = "None"; pendingPoll = false; lastTelemetry = 0; telemetrySequence = 0; started = SystemClock.elapsedRealtime(); paused = false; muted = false; playButton.text = "Pause"; if(demo) setupNative() else setupWeb(); if(active) { handler.removeCallbacks(tick); handler.post(tick) } }
+    private fun diagnostics() {
+        val memory = android.app.ActivityManager.MemoryInfo(); (getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager).getMemoryInfo(memory)
+        val age = if(lastTelemetry == 0L) "None" else "${(SystemClock.elapsedRealtime() - lastTelemetry) / 1000}s ago"
+        val text = "Mode: ${if(demo) "Bundled H.264/AAC clip · native Media3" else "FramexTV documented iframe"}\nAndroid: ${android.os.Build.VERSION.RELEASE} / API ${android.os.Build.VERSION.SDK_INT}\nWebView Chrome: $webVersion\nProvider: $provider\nProgress: ${format(seconds)} / ${format(duration)}\nLast telemetry: $age\nAvailable memory: ${memory.availMem / 1048576} MiB\nLow memory: ${memory.lowMemory}\nError: $error\n\nProvider commands have no documented acknowledgement. The Play/Pause label shows requested state. No video extraction or DRM bypass is performed. If native test succeeds but FramexTV fails, check WebView compatibility, provider availability and permissions."
+        AlertDialog.Builder(this).setTitle("Player diagnostics").setMessage(text).setPositiveButton("Close",null).show()
+    }
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if(hasFocus && !initialFocus && ::playButton.isInitialized) {
+            initialFocus = true
+            playButton.post { playButton.requestFocus() }
+        }
+    }
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if(::playButton.isInitialized && event.action == KeyEvent.ACTION_DOWN) when(event.keyCode) {
+            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> { togglePause(); return true }
+            KeyEvent.KEYCODE_MEDIA_PLAY -> { if(paused) togglePause(); return true }
+            KeyEvent.KEYCODE_MEDIA_PAUSE -> { if(!paused) togglePause(); return true }
+            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> { seek(10.0); return true }
+            KeyEvent.KEYCODE_MEDIA_REWIND -> { seek(-10.0); return true }
+            KeyEvent.KEYCODE_MENU -> { diagnostics(); return true }
+        }
+        return super.dispatchKeyEvent(event)
+    }
+    override fun onResume() { super.onResume(); active = true; if(::playButton.isInitialized) { if(!demo && web == null && error == "None") { telemetrySequence = 0; started = SystemClock.elapsedRealtime(); setupWeb() }; web?.onResume(); native?.playWhenReady = !paused; if(!paused) command(JSONObject().put("action","play")); handler.post(tick) } }
+    override fun onPause() { active = false; handler.removeCallbacks(tick); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
+    override fun onSaveInstanceState(outState: Bundle) { outState.putDouble("seconds",seconds); outState.putDouble("duration",duration); super.onSaveInstanceState(outState) }
+    private fun release() { native?.release(); native = null; web?.let { surface.removeView(it); it.stopLoading(); it.loadUrl("about:blank"); it.destroy() }; web = null }
+    override fun onDestroy() { handler.removeCallbacksAndMessages(null); if(::surface.isInitialized) release(); super.onDestroy() }
+}

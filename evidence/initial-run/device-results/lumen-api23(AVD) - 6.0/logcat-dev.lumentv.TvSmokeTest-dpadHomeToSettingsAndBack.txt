@@ -1,0 +1,81 @@
+10-24 19:54:38.278  4056  4069 I TestRunner: started: dpadHomeToSettingsAndBack(dev.lumentv.TvSmokeTest)
+10-24 19:54:38.351  4056  4069 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+10-24 19:54:38.475  1345  1452 W audio_hw_generic: Hardware backing HAL too slow, could only write 0 of 661 frames
+10-24 19:54:38.601  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: PRE_ON_CREATE
+10-24 19:54:38.602  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+10-24 19:54:38.656  1249  1276 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:38.769  4507  4521 D EGL_emulation: eglMakeCurrent: 0x7f64e4533640: ver 3 0 (tinfo 0x7f64e0dbf900)
+10-24 19:54:38.778  4507  4521 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7f64e4533a00
+10-24 19:54:38.923  1648  2619 W art     : Long monitor contention event with owner method=void com.android.server.wm.WindowManagerService$H.handleMessage(android.os.Message) from WindowManagerService.java:7820 waiters=0 for 116ms
+10-24 19:54:38.980  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: CREATED
+10-24 19:54:38.980  4056  4056 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:39.081  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: STARTED
+10-24 19:54:39.087  4056  4056 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:39.090  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: RESUMED
+10-24 19:54:39.090  4056  4056 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:39.258  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:39.646  1345  1453 W audio_hw_generic: Not supplying enough data to HAL, expected position 733062 , only wrote 668932
+10-24 19:54:39.713  1249  2183 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:39.752  1249  1279 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:40.094  1648  1667 I ActivityManager: Displayed dev.lumentv/.MainActivity: +1s665ms (total +3s950ms)
+10-24 19:54:40.100  4056  4056 I Choreographer: Skipped 31 frames!  The application may be doing too much work on its main thread.
+10-24 19:54:40.879  1648  1758 W AudioTrack: AUDIO_OUTPUT_FLAG_FAST denied by client; transfer 4, track 48000 Hz, output 44100 Hz
+10-24 19:54:40.978  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(14)
+10-24 19:54:41.446  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(7)
+10-24 19:54:42.510  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(79)
+10-24 19:54:42.555  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(3)
+10-24 19:54:42.670  2663  3795 W aoqb    : Sync failed [CONTEXT service_id=51 ]
+10-24 19:54:43.048  2663  3795 E HeterodyneSyncTaskChime: Sync task failure [CONTEXT service_id=51 ]
+10-24 19:54:43.448  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 778901 , only wrote 778658
+10-24 19:54:43.623  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(44)
+10-24 19:54:43.773  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: PAUSED
+10-24 19:54:43.774  4056  4056 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:43.994  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: PRE_ON_CREATE
+10-24 19:54:43.994  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:44.289  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: CREATED
+10-24 19:54:44.289  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:44.303  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: STARTED
+10-24 19:54:44.304  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:44.304  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: RESUMED
+10-24 19:54:44.304  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:44.402  4056  4056 I Choreographer: Skipped 33 frames!  The application may be doing too much work on its main thread.
+10-24 19:54:44.455  1648  1898 I AccountManagerService: getTypesVisibleToCaller: isPermitted? true
+10-24 19:54:44.569  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:44.581  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:44.688  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:44.926  1648  1899 I AccountManagerService: getTypesVisibleToCaller: isPermitted? true
+10-24 19:54:45.063  1648  1898 W art     : Long monitor contention event with owner method=java.util.List com.android.server.am.ActivityManagerService.getAllStackInfos() from ActivityManagerService.java:8937 waiters=0 for 162ms
+10-24 19:54:45.185  1648  1667 I ActivityManager: Displayed dev.lumentv/.SettingsActivity: +1s408ms
+10-24 19:54:45.196  4056  4076 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7f64d3cddd20
+10-24 19:54:45.575  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: STOPPED
+10-24 19:54:45.576  4056  4056 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:46.169  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: PAUSED
+10-24 19:54:46.169  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:46.212  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: RESTARTED
+10-24 19:54:46.213  4056  4056 V ActivityScenario: Update currentActivityStage to RESTARTED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:46.226  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: STARTED
+10-24 19:54:46.226  4056  4056 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:46.240  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: RESUMED
+10-24 19:54:46.240  4056  4056 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:46.398  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:46.410  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:46.460  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:46.618  4056  4076 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7f64d3cddbe0
+10-24 19:54:46.720  1345  1453 W audio_hw_generic: Not supplying enough data to HAL, expected position 1066824 , only wrote 922756
+10-24 19:54:46.816  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: STOPPED
+10-24 19:54:46.816  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:46.816  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.SettingsActivity@8d67e77 in: DESTROYED
+10-24 19:54:46.816  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the intent does not match. startActivityIntent=Intent { act=android.intent.action.MAIN cat=[android.intent.category.LAUNCHER] flg=0x10008000 cmp=dev.lumentv/.MainActivity }, activity.getIntent()=Intent { cmp=dev.lumentv/.SettingsActivity }, activity=dev.lumentv.SettingsActivity@8d67e77
+10-24 19:54:47.350  1249  1796 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 262144
+10-24 19:54:47.355  1648  1899 D         : HostConnection::get() New Host Connection established 0x7f64d343cd40, tid 1899
+10-24 19:54:47.404  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: PAUSED
+10-24 19:54:47.405  4056  4056 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:47.475  1648  1658 I art     : Background partial concurrent mark sweep GC freed 23890(1882KB) AllocSpace objects, 9(180KB) LOS objects, 30% free, 9MB/13MB, paused 1.184ms total 104.433ms
+10-24 19:54:47.594  1249  1796 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:47.661  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: STOPPED
+10-24 19:54:47.661  4056  4056 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=dev.lumentv.MainActivity@3ea58b1
+10-24 19:54:47.719  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.MainActivity@3ea58b1 in: DESTROYED
+10-24 19:54:47.719  4056  4056 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+10-24 19:54:47.772  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:47.780  4056  4076 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7f64e0ad4ee0
+10-24 19:54:47.892  4056  4069 I TestRunner: finished: dpadHomeToSettingsAndBack(dev.lumentv.TvSmokeTest)

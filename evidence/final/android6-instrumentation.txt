@@ -1,0 +1,8 @@
+
+dev.lumentv.TvSmokeTest:...
+
+Time: 24.79
+
+OK (3 tests)
+
+

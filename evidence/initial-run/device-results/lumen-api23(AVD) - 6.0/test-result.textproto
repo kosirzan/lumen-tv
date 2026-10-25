@@ -1,0 +1,177 @@
+# 2026-10-24T23:54:58.168610231Z:
+test_suite_meta_data {
+  scheduled_test_case_count: 3
+}
+test_status: FAILED
+test_result {
+  test_case {
+    test_class: "TvSmokeTest"
+    test_package: "dev.lumentv"
+    test_method: "offlinePlayerAdvancesAndPausesViaRemote"
+    start_time {
+      seconds: 1792886059
+      nanos: 808000000
+    }
+    end_time {
+      seconds: 1792886078
+      nanos: 131000000
+    }
+  }
+  test_status: FAILED
+  error {
+    error_message: "java.lang.AssertionError\nat org.junit.Assert.fail(Assert.java:87)\nat org.junit.Assert.assertTrue(Assert.java:42)\nat org.junit.Assert.assertTrue(Assert.java:53)\nat dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:48)\n"
+    error_type: "java.lang.AssertionError\nat org.junit.Assert.fail(Assert.java"
+    stack_trace: "java.lang.AssertionError\nat org.junit.Assert.fail(Assert.java:87)\nat org.junit.Assert.assertTrue(Assert.java:42)\nat org.junit.Assert.assertTrue(Assert.java:53)\nat dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:48)\n"
+  }
+  output_artifact {
+    label {
+      label: "logcat"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/logcat-dev.lumentv.TvSmokeTest-offlinePlayerAdvancesAndPausesViaRemote.txt"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/device-info.pb"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info.meminfo"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/meminfo"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info.cpuinfo"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/cpuinfo"
+    }
+  }
+}
+test_result {
+  test_case {
+    test_class: "TvSmokeTest"
+    test_package: "dev.lumentv"
+    test_method: "localWatchlistAndProgressPersist"
+    start_time {
+      seconds: 1792886078
+      nanos: 223000000
+    }
+    end_time {
+      seconds: 1792886078
+      nanos: 325000000
+    }
+  }
+  test_status: PASSED
+  output_artifact {
+    label {
+      label: "logcat"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/logcat-dev.lumentv.TvSmokeTest-localWatchlistAndProgressPersist.txt"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/device-info.pb"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info.meminfo"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/meminfo"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info.cpuinfo"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/cpuinfo"
+    }
+  }
+}
+test_result {
+  test_case {
+    test_class: "TvSmokeTest"
+    test_package: "dev.lumentv"
+    test_method: "dpadHomeToSettingsAndBack"
+    start_time {
+      seconds: 1792886078
+      nanos: 380000000
+    }
+    end_time {
+      seconds: 1792886087
+      nanos: 974000000
+    }
+  }
+  test_status: PASSED
+  output_artifact {
+    label {
+      label: "logcat"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/logcat-dev.lumentv.TvSmokeTest-dpadHomeToSettingsAndBack.txt"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/device-info.pb"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info.meminfo"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/meminfo"
+    }
+  }
+  output_artifact {
+    label {
+      label: "device-info.cpuinfo"
+      namespace: "android"
+    }
+    source_path {
+      path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/cpuinfo"
+    }
+  }
+}
+output_artifact {
+  label {
+    label: "test-results.log"
+    namespace: "com.google.testing.platform.runtime.android.driver.AndroidInstrumentationDriver"
+  }
+  source_path {
+    path: "/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/androidTest-results/connected/debug/lumen-api23(AVD) - 6.0/testlog/test-results.log"
+  }
+  type: TEST_DATA
+  mime_type: "text/plain"
+}

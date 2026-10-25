@@ -1,0 +1,4 @@
+10-24 19:54:38.096  4056  4069 I TestRunner: started: localWatchlistAndProgressPersist(dev.lumentv.TvSmokeTest)
+10-24 19:54:38.174  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 604486 , only wrote 604154
+10-24 19:54:38.174  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 604167 , only wrote 604154
+10-24 19:54:38.228  4056  4069 I TestRunner: finished: localWatchlistAndProgressPersist(dev.lumentv.TvSmokeTest)

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="dev.lumentv.PlaybackTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-25T00:00:50" hostname="5023216940b2" time="0.034">
+  <properties/>
+  <testcase name="completedPlaybackDoesNotResume" classname="dev.lumentv.PlaybackTest" time="0.031"/>
+  <testcase name="resumeThresholds" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="invalidProgressIsRejected" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="episodeEmbedAndResumeAreCorrect" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="invalidProviderCannotEnterUrl" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="invalidTitleTypeRejected" classname="dev.lumentv.PlaybackTest" time="0.001"/>
+  <testcase name="movieEmbedUsesDocumentedRoute" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="mediaTypesDoNotCollide" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="zeroEpisodeIsRejected" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <testcase name="episodesDoNotCollide" classname="dev.lumentv.PlaybackTest" time="0.001"/>
+  <testcase name="pausedReloadDoesNotAutoplay" classname="dev.lumentv.PlaybackTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

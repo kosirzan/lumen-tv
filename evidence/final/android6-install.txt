@@ -1,0 +1,4 @@
+/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/apk/debug/app-debug.apk: 1 file pushed, 0 skipped. 34.5 MB/s (7690989 bytes in 0.213s)
+Performing Push Install
+	pkg: /data/local/tmp/app-debug.apk
+Success

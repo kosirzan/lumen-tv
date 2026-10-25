@@ -1,0 +1,20 @@
+package dev.lumentv
+
+import org.junit.Assert.*
+import org.junit.Test
+
+class PlaybackTest {
+    private val movie = Title(550,"movie","Example")
+    private val tv = Title(1399,"tv","Series")
+    @Test fun movieEmbedUsesDocumentedRoute() { assertEquals("https://framextv.xyz/embed/550?autoplay=1&muted=0&controls=1&start=0",Framex.embed(Playback(movie))) }
+    @Test fun episodeEmbedAndResumeAreCorrect() { assertEquals("https://framextv.xyz/embed/1399/2/3?autoplay=1&muted=0&controls=1&start=120&provider=archer",Framex.embed(Playback(tv,2,3,120.9,900.0),"archer")) }
+    @Test fun pausedReloadDoesNotAutoplay() { assertTrue(Framex.embed(Playback(movie),autoplay=false).contains("autoplay=0")) }
+    @Test fun completedPlaybackDoesNotResume() { assertTrue(Framex.embed(Playback(movie,seconds=950.0,duration=1000.0)).endsWith("start=0")) }
+    @Test fun mediaTypesDoNotCollide() { assertNotEquals(movie.key,Title(550,"tv","Another").key) }
+    @Test fun episodesDoNotCollide() { assertNotEquals(Playback(tv,1,1).key,Playback(tv,1,2).key) }
+    @Test fun invalidProgressIsRejected() { listOf(Double.NaN,Double.POSITIVE_INFINITY,-1.0,1003.0).forEach { assertFalse(ProgressPolicy.valid(it,1000.0)) }; assertFalse(ProgressPolicy.valid(10.0,0.0)) }
+    @Test fun resumeThresholds() { assertFalse(ProgressPolicy.resumable(4.9,1000.0)); assertTrue(ProgressPolicy.resumable(5.0,1000.0)); assertTrue(ProgressPolicy.resumable(949.0,1000.0)); assertFalse(ProgressPolicy.resumable(950.0,1000.0)) }
+    @Test(expected=IllegalArgumentException::class) fun invalidProviderCannotEnterUrl() { Framex.embed(Playback(movie),"x&evil=1") }
+    @Test(expected=IllegalArgumentException::class) fun zeroEpisodeIsRejected() { Playback(tv,1,0) }
+    @Test(expected=IllegalArgumentException::class) fun invalidTitleTypeRejected() { Title(1,"person","Name") }
+}

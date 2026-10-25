@@ -1,0 +1,193 @@
+10-24 19:54:19.700  4056  4069 I TestRunner: started: offlinePlayerAdvancesAndPausesViaRemote(dev.lumentv.TvSmokeTest)
+10-24 19:54:19.798  4056  4069 W Settings: Setting always_finish_activities has moved from android.provider.Settings.System to android.provider.Settings.Global, returning read-only value.
+10-24 19:54:20.050  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: PRE_ON_CREATE
+10-24 19:54:20.057  4056  4056 V ActivityScenario: Activity lifecycle changed event received but ignored because the reported transition was not ON_CREATE while the last known transition was PRE_ON_CREATE
+10-24 19:54:20.168  1249  2183 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:20.470  4056  4056 I ExoPlayerImpl: Init 2d8abbf [AndroidXMedia3/1.3.1] [generic_x86_64, Android SDK built for x86_64, unknown, 23]
+10-24 19:54:20.492  2456  2556 D EGL_emulation: eglMakeCurrent: 0x7f64e0ad6240: ver 3 0 (tinfo 0x7f64d82ba260)
+10-24 19:54:20.531  2456  2556 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7f64e0ae95e0
+10-24 19:54:21.072  4056  4066 W art     : Suspending all threads took: 5.291ms
+10-24 19:54:21.076  4056  4066 I art     : Background sticky concurrent mark sweep GC freed 10111(880KB) AllocSpace objects, 0(0B) LOS objects, 24% free, 3MB/4MB, paused 6.275ms total 35.412ms
+10-24 19:54:21.445  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: CREATED
+10-24 19:54:21.450  4056  4056 V ActivityScenario: Update currentActivityStage to CREATED, currentActivity=dev.lumentv.PlayerActivity@5a6f32a
+10-24 19:54:21.456  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: STARTED
+10-24 19:54:21.456  4056  4056 V ActivityScenario: Update currentActivityStage to STARTED, currentActivity=dev.lumentv.PlayerActivity@5a6f32a
+10-24 19:54:21.459  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: RESUMED
+10-24 19:54:21.459  4056  4056 V ActivityScenario: Update currentActivityStage to RESUMED, currentActivity=dev.lumentv.PlayerActivity@5a6f32a
+10-24 19:54:21.550  1249  1279 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+10-24 19:54:21.579  4056  4076 D OpenGLRenderer: Use EGL_SWAP_BEHAVIOR_PRESERVED: true
+10-24 19:54:21.605  4056  4066 I art     : Background sticky concurrent mark sweep GC freed 4550(334KB) AllocSpace objects, 0(0B) LOS objects, 6% free, 4MB/4MB, paused 1.456ms total 107.938ms
+10-24 19:54:21.758  4056  4056 D         : HostConnection::get() New Host Connection established 0x7f64e0b19620, tid 4056
+10-24 19:54:21.782  4056  4066 I art     : Background partial concurrent mark sweep GC freed 2648(229KB) AllocSpace objects, 2(56KB) LOS objects, 40% free, 4MB/6MB, paused 2.490ms total 101.934ms
+10-24 19:54:22.009  4056  4074 W VideoCapabilities: Unrecognized profile/level 0/0 for video/mpeg2
+10-24 19:54:22.009  4056  4074 W VideoCapabilities: Unrecognized profile/level 0/2 for video/mpeg2
+10-24 19:54:22.009  4056  4074 W VideoCapabilities: Unrecognized profile/level 0/3 for video/mpeg2
+10-24 19:54:22.062  4056  4076 D         : HostConnection::get() New Host Connection established 0x7f64d63bb060, tid 4076
+10-24 19:54:22.098  4056  4076 I OpenGLRenderer: Initialized EGL, version 1.4
+10-24 19:54:22.102  4056  4076 D EGL_emulation: eglCreateContext: 0x7f64e4537b00: maj 3 min 0 rcv 3
+10-24 19:54:22.110  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:22.140  4056  4076 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+10-24 19:54:22.144  4056  4076 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+10-24 19:54:22.185  4056  4074 I VideoCapabilities: Unsupported profile 4 for video/mp4v-es
+10-24 19:54:22.288  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:22.431  4056  4077 D         : HostConnection::get() New Host Connection established 0x7f64e0b3d500, tid 4077
+10-24 19:54:22.460  4056  4077 D EGL_emulation: eglCreateContext: 0x7f64e0ad4f80: maj 3 min 0 rcv 3
+10-24 19:54:22.488  4056  4077 D EGL_emulation: eglMakeCurrent: 0x7f64e0ad4f80: ver 3 0 (tinfo 0x7f64d5f3a5a0)
+10-24 19:54:22.511  4056  4077 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+10-24 19:54:22.532  4056  4077 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+10-24 19:54:22.638  1249  1796 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:22.650  4056  4080 I OMXClient: Using client-side OMX mux.
+10-24 19:54:22.713  4056  4056 I Choreographer: Skipped 51 frames!  The application may be doing too much work on its main thread.
+10-24 19:54:22.744  1249  1279 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:22.813  1345  1345 D SoftAVCDec: Number of CPU cores: 4
+10-24 19:54:22.893  4056  4078 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 4153345
+10-24 19:54:22.914  1345  1459 W OMXNodeInstance: [23:google.h264.decoder] component does not support metadata mode; using fallback
+10-24 19:54:22.915  4056  4080 E ACodec  : [OMX.google.h264.decoder] storeMetaDataInBuffers failed w/ err -1010
+10-24 19:54:22.928  1345  2188 D SoftAVCDec: Number of CPU cores: 4
+10-24 19:54:22.958  1345  2184 E OMXNodeInstance: setConfig(23:google.h264.decoder, ConfigPriority(0x6f800002)) ERROR: Undefined(0x80001001)
+10-24 19:54:22.968  4056  4080 I ACodec  : codec does not support config priority (err -2147483648)
+10-24 19:54:23.410  4056  4085 I OMXClient: Using client-side OMX mux.
+10-24 19:54:23.610  1345  2151 E OMXNodeInstance: setConfig(24:google.aac.decoder, ConfigPriority(0x6f800002)) ERROR: Undefined(0x80001001)
+10-24 19:54:23.611  4056  4085 I ACodec  : codec does not support config priority (err -2147483648)
+10-24 19:54:23.706  1345  4090 I SoftAAC2: limiting to stereo output
+10-24 19:54:23.790  4056  4078 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 4153346
+10-24 19:54:23.797  1345  4090 I SoftAAC2: Reconfiguring decoder: 0->44100 Hz, 0->1 channels
+10-24 19:54:23.971  1648  1667 I ActivityManager: Displayed dev.lumentv/.PlayerActivity: +3s969ms
+10-24 19:54:24.030  4056  4056 I Choreographer: Skipped 78 frames!  The application may be doing too much work on its main thread.
+10-24 19:54:24.430  1345  1452 W audio_hw_generic: Hardware backing HAL too slow, could only write 0 of 661 frames
+10-24 19:54:24.444  1345  1452 W audio_hw_generic: Hardware backing HAL too slow, could only write 0 of 661 frames
+10-24 19:54:25.027  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:25.093  1249  2183 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 348160
+10-24 19:54:25.104  4056  4078 D         : HostConnection::get() New Host Connection established 0x7f64e4531920, tid 4078
+10-24 19:54:25.275  1249  1279 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 348160
+10-24 19:54:25.468  1249  1279 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 348160
+10-24 19:54:25.641  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:25.781  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(32)
+10-24 19:54:25.927  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:26.247  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:26.333  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(16)
+10-24 19:54:27.664  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(136)
+10-24 19:54:27.797  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:27.939  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(27)
+10-24 19:54:28.361  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:28.461  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(18)
+10-24 19:54:28.669  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(23)
+10-24 19:54:28.689  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 190437 , only wrote 190368
+10-24 19:54:28.689  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 190382 , only wrote 190368
+10-24 19:54:28.706  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 191091 , only wrote 191029
+10-24 19:54:28.768  1345  1452 W audio_hw_generic: Hardware backing HAL too slow, could only write 0 of 661 frames
+10-24 19:54:28.915  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:29.059  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(28)
+10-24 19:54:29.665  1345  1452 W audio_hw_generic: Hardware backing HAL too slow, could only write 0 of 661 frames
+10-24 19:54:29.691  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(6)
+10-24 19:54:29.767  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 237827 , only wrote 237299
+10-24 19:54:29.778  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:30.008  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:30.231  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:30.431  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:30.695  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:31.028  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:31.137  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(27)
+10-24 19:54:31.231  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(15)
+10-24 19:54:31.451  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(33)
+10-24 19:54:31.569  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(24)
+10-24 19:54:31.692  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:31.942  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(13)
+10-24 19:54:32.300  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:32.322  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 349953 , only wrote 349008
+10-24 19:54:32.474  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(1)
+10-24 19:54:32.525  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:33.176  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 386710 , only wrote 386685
+10-24 19:54:33.277  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(13)
+10-24 19:54:33.403  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(33)
+10-24 19:54:33.418  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 397340 , only wrote 397261
+10-24 19:54:33.418  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 397279 , only wrote 397261
+10-24 19:54:33.439  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 398181 , only wrote 397922
+10-24 19:54:33.810  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(22)
+10-24 19:54:34.123  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(3)
+10-24 19:54:34.749  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 455671 , only wrote 455429
+10-24 19:54:34.751  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 455541 , only wrote 455429
+10-24 19:54:34.768  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 456149 , only wrote 456090
+10-24 19:54:35.035  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(13)
+10-24 19:54:35.155  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(22)
+10-24 19:54:35.403  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 484111 , only wrote 483852
+10-24 19:54:35.689  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 496475 , only wrote 496411
+10-24 19:54:35.690  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 496428 , only wrote 496411
+10-24 19:54:35.709  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 497263 , only wrote 497072
+10-24 19:54:35.804  1249  2187 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 262144
+10-24 19:54:35.828  1648  2637 D         : HostConnection::get() New Host Connection established 0x7f64d205e7c0, tid 2637
+10-24 19:54:35.837  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(11)
+10-24 19:54:36.121  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: PAUSED
+10-24 19:54:36.135  4056  4056 V ActivityScenario: Update currentActivityStage to PAUSED, currentActivity=dev.lumentv.PlayerActivity@5a6f32a
+10-24 19:54:36.253  4507  4507 I art     : Late-enabling -Xcheck:jni
+10-24 19:54:36.335  1648  1896 W art     : Long monitor contention event with owner method=int com.android.server.wm.WindowManagerService.relayoutWindow(com.android.server.wm.Session, android.view.IWindow, int, android.view.WindowManager$LayoutParams, int, int, int, int, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.graphics.Rect, android.content.res.Configuration, android.view.Surface) from WindowManagerService.java:3103 waiters=0 for 127ms
+10-24 19:54:36.371  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 526260 , only wrote 526156
+10-24 19:54:36.419  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 528256 , only wrote 527478
+10-24 19:54:36.451  1345  1453 D AudioFlinger: mixer(0xf4440000) throttle end: throttle time(55)
+10-24 19:54:36.483  1249  1279 D gralloc_ranchu: gralloc_alloc: Creating ashmem region of size 3686400
+10-24 19:54:36.694  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 539643 , only wrote 539376
+10-24 19:54:36.729  4507  4507 W System  : ClassLoader referenced unknown path: /data/app/dev.lumentv.test-1/lib/x86_64
+10-24 19:54:36.832  1345  1452 W audio_hw_generic: Not supplying enough data to HAL, expected position 545461 , only wrote 545325
+10-24 19:54:36.959  4056  4078 I MediaCodec: [OMX.google.h264.decoder] setting surface generation to 4153347
+10-24 19:54:37.085  1249  1279 E SurfaceFlinger: ro.sf.lcd_density must be defined as a build property
+10-24 19:54:37.110  4507  4521 D OpenGLRenderer: Use EGL_SWAP_BEHAVIOR_PRESERVED: true
+10-24 19:54:37.131  4056  4076 D EGL_emulation: eglMakeCurrent: 0x7f64e4537b00: ver 3 0 (tinfo 0x7f64e040e440)
+10-24 19:54:37.146  4507  4507 D         : HostConnection::get() New Host Connection established 0x7f64e0b3c8a0, tid 4507
+10-24 19:54:37.159  4056  4076 E Surface : getSlotFromBufferLocked: unknown buffer: 0x7f64d5c4fe60
+10-24 19:54:37.349  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: STOPPED
+10-24 19:54:37.350  4056  4056 V ActivityScenario: Update currentActivityStage to STOPPED, currentActivity=dev.lumentv.PlayerActivity@5a6f32a
+10-24 19:54:37.350  4056  4056 I ExoPlayerImpl: Release 2d8abbf [AndroidXMedia3/1.3.1] [generic_x86_64, Android SDK built for x86_64, unknown, 23] [media3.common, media3.exoplayer, media3.decoder, media3.ui, media3.datasource, media3.extractor]
+10-24 19:54:37.378  4507  4521 D         : HostConnection::get() New Host Connection established 0x7f64e45304e0, tid 4521
+10-24 19:54:37.423  4507  4521 I OpenGLRenderer: Initialized EGL, version 1.4
+10-24 19:54:37.434  4507  4521 D EGL_emulation: eglCreateContext: 0x7f64e4533640: maj 3 min 0 rcv 3
+10-24 19:54:37.440  4507  4521 D EGL_emulation: eglMakeCurrent: 0x7f64e4533640: ver 3 0 (tinfo 0x7f64e0dbf900)
+10-24 19:54:37.467  4507  4521 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008cdf
+10-24 19:54:37.470  4507  4521 E eglCodecCommon: glUtilsParamSize: unknow param 0x00008824
+10-24 19:54:37.606  4507  4521 D EGL_emulation: eglMakeCurrent: 0x7f64e4533640: ver 3 0 (tinfo 0x7f64e0dbf900)
+10-24 19:54:37.887  4056  4056 D LifecycleMonitor: Lifecycle status change: dev.lumentv.PlayerActivity@5a6f32a in: DESTROYED
+10-24 19:54:37.887  4056  4056 V ActivityScenario: Update currentActivityStage to DESTROYED, currentActivity=null
+10-24 19:54:37.929  4056  4066 I art     : Background sticky concurrent mark sweep GC freed 23080(1026KB) AllocSpace objects, 0(0B) LOS objects, 19% free, 5MB/6MB, paused 7.131ms total 51.475ms
+10-24 19:54:37.961  4056  4056 I Choreographer: Skipped 34 frames!  The application may be doing too much work on its main thread.
+10-24 19:54:37.987  1648  3338 W art     : Long monitor contention event with owner method=boolean com.android.server.am.ActivityManagerService.finishActivity(android.os.IBinder, int, android.content.Intent, boolean) from ActivityManagerService.java:4245 waiters=0 for 244ms
+10-24 19:54:37.995  4056  4069 E TestRunner: failed: offlinePlayerAdvancesAndPausesViaRemote(dev.lumentv.TvSmokeTest)
+10-24 19:54:37.996  4056  4069 E TestRunner: ----- begin exception -----
+10-24 19:54:38.007  4056  4069 E TestRunner: java.lang.AssertionError
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.Assert.fail(Assert.java:87)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:42)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.Assert.assertTrue(Assert.java:53)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:48)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at java.lang.reflect.Method.invoke(Native Method)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:128)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.Suite.runChild(Suite.java:27)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:67)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:58)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:446)
+10-24 19:54:38.007  4056  4069 E TestRunner: 	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1879)
+10-24 19:54:38.008  4056  4069 E TestRunner: ----- end exception -----
+10-24 19:54:38.023  4056  4069 I TestRunner: finished: offlinePlayerAdvancesAndPausesViaRemote(dev.lumentv.TvSmokeTest)

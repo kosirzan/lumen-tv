@@ -1,0 +1,40 @@
+INFO: Constructing runner from config.
+WARNING: Failed to find a usable hardware address from the network interfaces; using random bytes: 16:47:ee:46:3a:5b:83:e9
+INFO: Configuring Android Instrumentation driver: android_instrumentation_runtime {
+  instrumentation_info {
+    app_package: "dev.lumentv"
+    test_package: "dev.lumentv.test"
+    test_runner_class: "androidx.test.runner.AndroidJUnitRunner"
+  }
+  instrumentation_args {
+    args_map {
+      key: "additionalTestOutputDir"
+      value: "/storage/emulated/0/Android/data/dev.lumentv/files/test_data"
+    }
+  }
+}
+am_instrument_timeout: 31536000
+
+INFO: No installables found in test fixture. Nothing to install.
+INFO: Installing [/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/apk/debug/app-debug.apk] on device emulator-5554.
+INFO: Installing [/workspace/scratch/49a327b83466/lumen-tv/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk] on device emulator-5554.
+INFO: Start logcat streaming.
+INFO: Running Android Instrumentation driver.
+INFO: Stop logcat streaming.
+INFO: Uninstalling dev.lumentv for device emulator-5554.
+INFO: Uninstalling dev.lumentv.test for device emulator-5554.
+SEVERE: Execute dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote: FAILED
+java.lang.AssertionError
+at org.junit.Assert.fail(Assert.java: java.lang.AssertionError
+at org.junit.Assert.fail(Assert.java:87)
+at org.junit.Assert.assertTrue(Assert.java:42)
+at org.junit.Assert.assertTrue(Assert.java:53)
+at dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:48)
+
+java.lang.AssertionError
+at org.junit.Assert.fail(Assert.java:87)
+at org.junit.Assert.assertTrue(Assert.java:42)
+at org.junit.Assert.assertTrue(Assert.java:53)
+at dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:48)
+INFO: Execute dev.lumentv.TvSmokeTest.localWatchlistAndProgressPersist: PASSED
+INFO: Execute dev.lumentv.TvSmokeTest.dpadHomeToSettingsAndBack: PASSED

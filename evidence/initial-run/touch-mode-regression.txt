@@ -1,0 +1,21 @@
+
+dev.lumentv.TvSmokeTest:
+Error in offlinePlayerAdvancesAndPausesViaRemote(dev.lumentv.TvSmokeTest):
+java.lang.AssertionError: Select should activate focused Pause
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:49)
+..
+
+Time: 44.195
+There was 1 failure:
+1) offlinePlayerAdvancesAndPausesViaRemote(dev.lumentv.TvSmokeTest)
+java.lang.AssertionError: Select should activate focused Pause
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at dev.lumentv.TvSmokeTest.offlinePlayerAdvancesAndPausesViaRemote(TvSmokeTest.kt:49)
+
+FAILURES!!!
+Tests run: 3,  Failures: 1
+
+
