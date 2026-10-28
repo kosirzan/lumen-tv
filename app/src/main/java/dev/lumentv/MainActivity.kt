@@ -41,7 +41,7 @@ class MainActivity : FragmentActivity() {
         fragment.setOnItemViewClickedListener { _, item, _, _ ->
             when(item) {
                 is Title -> details(item)
-                is Playback -> startActivity(Intent(this, PlayerActivity::class.java).putExtra("playback",item))
+                is Playback -> historyActions(item)
                 is Command -> item.action()
             }
         }
@@ -55,6 +55,18 @@ class MainActivity : FragmentActivity() {
     override fun onResume() { super.onResume(); load() }
     override fun onSaveInstanceState(outState: Bundle) { outState.putString("section",section); outState.putString("query",query); outState.putInt("page",page); super.onSaveInstanceState(outState) }
     private fun details(t: Title) { startActivity(Intent(this,DetailsActivity::class.java).putExtra("title",t)) }
+    private fun historyActions(p: Playback) {
+        val episode = if(p.title.type == "tv") " · S${p.season} E${p.episode}" else ""
+        AlertDialog.Builder(this).setTitle(p.title.name + episode).setItems(arrayOf("Resume ${format(p.seconds)}", "Start from beginning", "Remove from Continue Watching", "Open details")) { _, choice ->
+            when(choice) {
+                0 -> startActivity(Intent(this, PlayerActivity::class.java).putExtra("playback",p))
+                1 -> { Store(this).removeHistory(p); startActivity(Intent(this, PlayerActivity::class.java).putExtra("playback",p.copy(seconds=0.0,duration=0.0))) }
+                2 -> { Store(this).removeHistory(p); load() }
+                3 -> details(p.title)
+            }
+        }.setNegativeButton("Cancel",null).show()
+    }
+    private fun format(value: Double): String { val s = value.toLong().coerceAtLeast(0); return if(s >= 3600) "%d:%02d:%02d".format(s / 3600,s / 60 % 60,s % 60) else "%d:%02d".format(s / 60,s % 60) }
     private fun row(label: String, items: List<Any>) { if(items.isEmpty()) return; val a = ArrayObjectAdapter(Cards()); items.forEach { a.add(it) }; rows.add(ListRow(HeaderItem(label),a)) }
     private fun searchDialog() {
         val field = EditText(this).apply { hint = "Movie or series title"; setSingleLine(); setText(query) }

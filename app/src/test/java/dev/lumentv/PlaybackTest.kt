@@ -9,6 +9,7 @@ class PlaybackTest {
     @Test fun movieEmbedUsesCurrentDocumentedRoute() { assertEquals("https://framextv.cc/embed/550?autoplay=1&muted=0&controls=1&start=0",Framex.embed(Playback(movie))) }
     @Test fun episodeEmbedAndResumeAreCorrect() { assertEquals("https://framextv.cc/embed/1399/2/3?autoplay=1&muted=0&controls=1&start=120&provider=archer",Framex.embed(Playback(tv,2,3,120.9,900.0),"archer")) }
     @Test fun redirectAliasesAreExplicitlyAllowlisted() { assertTrue("framextv.cc" in Framex.allowedHosts); assertTrue("framextv.xyz" in Framex.allowedHosts); assertFalse("example.com" in Framex.allowedHosts) }
+    @Test fun recommendedProviderIsHighQualityDocumentedOption() { assertEquals("pekka",Framex.providers.first()); assertTrue(Framex.providerLabels.getValue("pekka").contains("1080p")) }
     @Test fun pausedReloadDoesNotAutoplay() { assertTrue(Framex.embed(Playback(movie),autoplay=false).contains("autoplay=0")) }
     @Test fun completedPlaybackDoesNotResume() { assertTrue(Framex.embed(Playback(movie,seconds=950.0,duration=1000.0)).endsWith("start=0")) }
     @Test fun mediaTypesDoNotCollide() { assertNotEquals(movie.key,Title(550,"tv","Another").key) }

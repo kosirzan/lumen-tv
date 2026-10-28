@@ -23,7 +23,14 @@ object Framex {
     // new sessions on the current host so legacy WebViews do not need a redirect.
     const val ORIGIN = "https://framextv.cc"
     val allowedHosts = setOf("framextv.cc", "www.framextv.cc", "framextv.xyz", "www.framextv.xyz")
-    val providers = listOf("auto", "barbarian", "archer", "goblin")
+    val providers = listOf("pekka", "auto", "archer", "barbarian", "goblin")
+    val providerLabels = mapOf(
+        "pekka" to "Best 1080p · P.E.K.K.A (recommended)",
+        "auto" to "Automatic fallback · provider decides quality",
+        "archer" to "Archer · 4K / multi-audio capable",
+        "barbarian" to "Barbarian · subtitle-focused fallback",
+        "goblin" to "Goblin · fast fallback"
+    )
     fun embed(playback: Playback, provider: String = "auto", autoplay: Boolean = true): String {
         require(provider in providers)
         val suffix = if (playback.title.type == "tv") "/${playback.season}/${playback.episode}" else ""

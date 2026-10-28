@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0 — 2026-10-28
+
+- Replace the permanently visible player strip with a full-screen overlay that
+  hides after five seconds and reappears on remote activity.
+- Add direct hidden-state remote shortcuts: Left/Right seeks 10 seconds and OK
+  toggles play/pause; media keys continue to work.
+- Default existing `auto` users and new installs to FramexTV's documented
+  P.E.K.K.A high-bitrate 1080p source. Auto and other documented providers remain
+  selectable from a clearer Source menu.
+- Explain in the UI that FramexTV has no documented direct quality command, so
+  source choice influences but cannot guarantee the adaptive resolution.
+- Replace the subtitle disclaimer with remote-friendly numbered track selection
+  through FramexTV's documented `setSubtitle` command.
+- Add Resume, Start from beginning, Remove from Continue Watching, and Details
+  actions when selecting a Continue Watching item.
+- Keep the 0.2.0 signing identity so this APK installs as an in-place update.
+
 ## 0.2.0 — 2026-10-28
 
 - Start FramexTV embeds on the current `framextv.cc` host after the provider's

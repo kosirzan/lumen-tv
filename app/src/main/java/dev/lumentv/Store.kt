@@ -14,8 +14,18 @@ class Store(context: Context) {
         get() = prefs.getBoolean("providerAllowed", false)
         set(value) { prefs.edit().putBoolean("providerAllowed", value).apply() }
     var provider: String
-        get() = prefs.getString("provider", "auto")?.takeIf { it in Framex.providers } ?: "auto"
-        set(value) { require(value in Framex.providers); prefs.edit().putString("provider", value).apply() }
+        get() {
+            val saved = prefs.getString("provider", null)
+            val migrated = prefs.getBoolean("providerDefaultV3", false)
+            val value = saved?.takeIf { it in Framex.providers }
+            if(!migrated) {
+                val preferred = if(value == null || value == "auto") "pekka" else value
+                prefs.edit().putString("provider", preferred).putBoolean("providerDefaultV3", true).apply()
+                return preferred
+            }
+            return value ?: "pekka"
+        }
+        set(value) { require(value in Framex.providers); prefs.edit().putString("provider", value).putBoolean("providerDefaultV3", true).apply() }
     private fun array(key: String) = runCatching { JSONArray(prefs.getString(key, "[]")) }.getOrDefault(JSONArray())
     private fun title(o: JSONObject) = Title(o.getInt("id"), o.getString("type"), o.getString("name"), o.optString("overview"), o.optString("poster"), o.optString("year"), o.optDouble("rating", 0.0))
     private fun json(t: Title) = JSONObject().put("id", t.id).put("type", t.type).put("name", t.name).put("overview", t.overview).put("poster", t.poster).put("year", t.year).put("rating", t.rating)
@@ -34,6 +44,10 @@ class Store(context: Context) {
         val list = history().filter { it.key != p.key }.toMutableList()
         if (p.resumable) list.add(0, p)
         prefs.edit().putString("history", JSONArray(list.take(100).map { json(it.title).put("season", it.season).put("episode", it.episode).put("seconds", it.seconds).put("duration", it.duration) }).toString()).apply()
+    }
+    fun removeHistory(p: Playback) {
+        val list = history().filter { it.key != p.key }
+        prefs.edit().putString("history", JSONArray(list.map { json(it.title).put("season", it.season).put("episode", it.episode).put("seconds", it.seconds).put("duration", it.duration) }).toString()).apply()
     }
     fun clearHistory() { prefs.edit().remove("history").apply() }
 }

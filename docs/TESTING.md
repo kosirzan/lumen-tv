@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.2.0
+# Testing status — Lumen TV 0.3.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -9,7 +9,7 @@
 | Kotlin / Android SDK debug build | PASS |
 | Minimum SDK in compiled APK | 23 (Android 6.0) |
 | Target / compile SDK | 35 |
-| JVM unit tests | 12 passed, 0 failed |
+| JVM unit tests | 13 passed, 0 failed |
 | Android lint | 0 errors, 28 warnings |
 | APK signature | Verified; v1 and v2 signatures present |
 | Installation on Android 6 emulator | PASS |
@@ -75,35 +75,42 @@ this app exposes subtitle indices and provider selection, not a native quality
 or audio-track catalogue. Play/Pause labels indicate the requested state because
 the documented API has no acknowledgement contract.
 
-Version 0.2.0 addresses a concrete integration failure observed on 28 October:
+Version 0.2.0 addressed a concrete integration failure observed on 28 October:
 the old `.xyz` embed redirects to `.cc`, while 0.1.0 restricted its iframe and
 origin validation to `.xyz`. The app now starts on `.cc`, permits only the known
 HTTPS migration aliases, matches the provider's documented iframe environment,
 and adds privacy-preserving provider resource, HTTP, console-error-count and
 renderer diagnostics. Console text and resource URLs are not retained.
 
+Version 0.3.0 adds a five-second auto-hide overlay and direct remote shortcuts,
+defaults to the documented P.E.K.K.A high-bitrate 1080p source, exposes the
+documented provider and numbered subtitle commands with clearer native dialogs,
+and adds removal/start-over actions to Continue Watching. FramexTV does not
+document a direct quality-selection command; provider selection influences the
+available stream, while adaptive playback and actual resolution remain under
+FramexTV's control.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.2.0-debug.apk`
+- Filename: `Lumen-TV-0.3.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.2.0` / versionCode `2`
-- Size: 7,669,935 bytes
-- SHA-256: `b96b44ec8ea21895ed3ef4f1a60bf27dbb50335d0efe5099651f6d48a33e2550`
+- Version: `0.3.0` / versionCode `3`
+- Size: 7,677,614 bytes
+- SHA-256: `4d60f696e3cec46ef346bf37702126f41b33fc8087c38c30ded0cac799631a74`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The prior private debug key was not present in the repository, so its signature
-could not be preserved. Upgrading from 0.1.0 therefore requires uninstalling it,
-which removes local app data. Keep the new key or use a stable private release
-keystore for future updates.
+The 0.3.0 APK has the same signing certificate as 0.2.0 and can update it in
+place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
+requires uninstalling it first.
 
 ## Evidence
 
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.2.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.3.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

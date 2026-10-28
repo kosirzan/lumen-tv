@@ -31,6 +31,7 @@ class PlayerActivity : Activity() {
     private lateinit var surface: FrameLayout
     private lateinit var status: TextView
     private lateinit var playButton: Button
+    private lateinit var controlsPanel: LinearLayout
     private val handler = Handler(Looper.getMainLooper())
     private var paused = false
     private var active = false
@@ -50,6 +51,8 @@ class PlayerActivity : Activity() {
     private var frameHttpError = "None"
     private var consoleErrors = 0
     private var renderProcessLost = false
+    private var controlsVisible = true
+    private val hideControls = Runnable { setControlsVisible(false) }
     private val tick = object : Runnable {
         override fun run() {
             if(!active) return
@@ -87,27 +90,45 @@ class PlayerActivity : Activity() {
         seconds = state?.getDouble("seconds") ?: item?.seconds ?: 0.0
         duration = state?.getDouble("duration") ?: item?.duration ?: 0.0
         provider = Store(this).provider
-        val root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setBackgroundColor(Color.BLACK); setPadding(Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,12),Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,12)) }
-        status = Ui.text(this,if(demo) "Offline playback diagnostic" else item!!.label,15f); root.addView(status)
-        surface = FrameLayout(this).apply { descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS }; root.addView(surface,LinearLayout.LayoutParams(-1,0,1f))
+        val root = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
+        surface = FrameLayout(this).apply { descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS }; root.addView(surface,FrameLayout.LayoutParams(-1,-1))
+        status = Ui.text(this,if(demo) "Offline playback diagnostic" else item!!.label,15f).apply { setBackgroundColor(0xCC000000.toInt()); setPadding(Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,10),Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,10)) }
+        root.addView(status,FrameLayout.LayoutParams(-1,-2,Gravity.TOP))
         val controls = Ui.row(this).apply { gravity = Gravity.CENTER }
-        controls.addView(Ui.button(this,"−10s") { seek(-10.0) })
-        playButton = Ui.button(this,"Pause") { togglePause() }; controls.addView(playButton)
-        controls.addView(Ui.button(this,"+10s") { seek(10.0) })
-        controls.addView(Ui.button(this,"Audio") { muted = !muted; native?.volume = if(muted) 0f else 1f; command(JSONObject().put("action","setVolume").put("volume",if(muted) 0 else 1)) })
+        controls.addView(playerButton("−10s") { seek(-10.0) })
+        playButton = playerButton("Pause") { togglePause() }; controls.addView(playButton)
+        controls.addView(playerButton("+10s") { seek(10.0) })
+        controls.addView(playerButton("Audio") { muted = !muted; native?.volume = if(muted) 0f else 1f; command(JSONObject().put("action","setVolume").put("volume",if(muted) 0 else 1)) })
         if(!demo) {
-            controls.addView(Ui.button(this,"Provider") { chooseProvider() })
-            controls.addView(Ui.button(this,"Subtitles") { AlertDialog.Builder(this).setTitle("Provider subtitle track").setMessage("Track availability and language are controlled by FramexTV. Index 0 is the first track.").setPositiveButton("Choose") { _, _ -> AlertDialog.Builder(this).setTitle("Track index").setItems((0..7).map { "Track $it" }.toTypedArray()) { _, index -> command(JSONObject().put("action","setSubtitle").put("index",index)) }.setNegativeButton("Cancel",null).show() }.setNegativeButton("Cancel",null).show() })
+            controls.addView(playerButton("Source") { chooseProvider() })
+            controls.addView(playerButton("Subtitles") { chooseSubtitle() })
         }
-        controls.addView(Ui.button(this,"Retry") { retry() })
-        controls.addView(Ui.button(this,"Diagnostics") { diagnostics() })
-        controls.addView(Ui.button(this,"Back") { finish() })
-        root.addView(HorizontalScrollView(this).apply { isFocusable = false; addView(controls) })
+        controls.addView(playerButton("Retry") { retry() })
+        controls.addView(playerButton("Diagnostics") { diagnostics() })
+        controls.addView(playerButton("Back") { finish() })
+        controlsPanel = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER; setBackgroundColor(0xD9000000.toInt())
+            setPadding(Ui.dp(this@PlayerActivity,16),Ui.dp(this@PlayerActivity,8),Ui.dp(this@PlayerActivity,16),Ui.dp(this@PlayerActivity,8))
+            addView(Ui.text(this@PlayerActivity,"Remote: ◀/▶ seek 10s · OK play/pause · any navigation key shows controls",13f).apply { gravity = Gravity.CENTER })
+            addView(HorizontalScrollView(this@PlayerActivity).apply { isFocusable = false; addView(controls) })
+        }
+        root.addView(controlsPanel,FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM))
         setContentView(root)
         started = SystemClock.elapsedRealtime()
         if(demo) setupNative() else setupWeb()
         playButton.requestFocus()
+        scheduleControlsHide()
     }
+    private fun playerButton(label: String, action: () -> Unit): Button = Ui.button(this,label) { showControls(); action(); scheduleControlsHide() }
+    private fun setControlsVisible(visible: Boolean) {
+        if(!::controlsPanel.isInitialized || !::status.isInitialized) return
+        controlsVisible = visible
+        controlsPanel.visibility = if(visible) View.VISIBLE else View.GONE
+        status.visibility = if(visible || error != "None") View.VISIBLE else View.GONE
+        if(visible) playButton.post { if(currentFocus?.isShown != true) playButton.requestFocus() }
+    }
+    private fun showControls() { handler.removeCallbacks(hideControls); setControlsVisible(true) }
+    private fun scheduleControlsHide() { handler.removeCallbacks(hideControls); handler.postDelayed(hideControls,5000) }
     private fun setupNative() {
         native = ExoPlayer.Builder(this).build().apply player@ {
             val view = PlayerView(this@PlayerActivity).apply { player = this@player; useController = false; isFocusable = false }
@@ -159,12 +180,12 @@ class PlayerActivity : Activity() {
                     if(runCatching { Uri.parse(url).host in Framex.allowedHosts }.getOrDefault(false)) frameRequests++
                 }
                 override fun onReceivedError(view: WebView, request: WebResourceRequest, e: WebResourceError) {
-                    if(request.url.host in Framex.allowedHosts) { error = "Provider resource error ${e.errorCode}"; status.text = "Provider connection failed. Open Diagnostics or Retry." }
+                    if(request.url.host in Framex.allowedHosts) { error = "Provider resource error ${e.errorCode}"; status.text = "Provider connection failed. Open Diagnostics or Retry."; showControls() }
                 }
                 override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: WebResourceResponse) {
                     if(request.url.host in Framex.allowedHosts) { frameHttpError = "HTTP ${response.statusCode}" }
                 }
-                override fun onReceivedSslError(view: WebView, ssl: android.webkit.SslErrorHandler, e: android.net.http.SslError) { ssl.cancel(); error = "TLS certificate validation failed"; status.text = "Secure connection failed. Check the TV date/time." }
+                override fun onReceivedSslError(view: WebView, ssl: android.webkit.SslErrorHandler, e: android.net.http.SslError) { ssl.cancel(); error = "TLS certificate validation failed"; status.text = "Secure connection failed. Check the TV date/time."; showControls() }
                 @android.annotation.TargetApi(Build.VERSION_CODES.O)
                 override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
                     renderProcessLost = true
@@ -172,6 +193,7 @@ class PlayerActivity : Activity() {
                     web = null
                     surface.removeView(view)
                     status.text = "Player stopped. Open Diagnostics, then Retry."
+                    showControls()
                     return true
                 }
             }
@@ -183,12 +205,25 @@ class PlayerActivity : Activity() {
             </script></body></html>"""
             surface.addView(w,FrameLayout.LayoutParams(-1,-1))
             w.loadDataWithBaseURL("https://appassets.androidplatform.net/player/",html,"text/html","UTF-8",null)
-        } catch (_: Exception) { error = "WebView unavailable"; status.text = "Android System WebView could not start. Update/enable it in TV settings." }
+        } catch (_: Exception) { error = "WebView unavailable"; status.text = "Android System WebView could not start. Update/enable it in TV settings."; showControls() }
     }
     private fun command(json: JSONObject) { web?.evaluateJavascript("window.sendFramex && window.sendFramex($json)",null) }
-    private fun togglePause() { paused = !paused; native?.playWhenReady = !paused; command(JSONObject().put("action",if(paused) "pause" else "play")); playButton.text = if(paused) "Play" else "Pause" }
+    private fun togglePause() { paused = !paused; native?.playWhenReady = !paused; command(JSONObject().put("action",if(paused) "pause" else "play")); playButton.text = if(paused) "Play" else "Pause"; showControls(); scheduleControlsHide() }
     private fun seek(offset: Double) { native?.let { it.seekTo((it.currentPosition + (offset * 1000).toLong()).coerceIn(0,it.duration.coerceAtLeast(0))) }; command(JSONObject().put("action","seekBy").put("seconds",offset)) }
-    private fun chooseProvider() { AlertDialog.Builder(this).setTitle("Playback provider").setItems(Framex.providers.toTypedArray()) { _, i -> provider = Framex.providers[i]; Store(this).provider = provider; retry() }.setNegativeButton("Cancel",null).show() }
+    private fun chooseProvider() {
+        handler.removeCallbacks(hideControls)
+        val labels = Framex.providers.map { Framex.providerLabels[it] ?: it }
+        AlertDialog.Builder(this).setTitle("Stream source").setMessage("FramexTV does not expose a direct quality command. Source selection influences available quality; the provider may still adapt it to bandwidth and device support.").setSingleChoiceItems(labels.toTypedArray(),Framex.providers.indexOf(provider)) { dialog, i ->
+            provider = Framex.providers[i]; Store(this).provider = provider; dialog.dismiss(); retry(); showControls(); scheduleControlsHide()
+        }.setNegativeButton("Cancel") { _, _ -> scheduleControlsHide() }.setOnCancelListener { scheduleControlsHide() }.show()
+    }
+    private fun chooseSubtitle() {
+        handler.removeCallbacks(hideControls)
+        val tracks = (0..7).map { "Subtitle track ${it + 1}" }.toTypedArray()
+        AlertDialog.Builder(this).setTitle("Subtitles").setMessage("FramexTV exposes track numbers but not their language names. Choose a track; if it is unavailable, try the next one.").setItems(tracks) { _, index ->
+            command(JSONObject().put("action","setSubtitle").put("index",index)); showControls(); scheduleControlsHide()
+        }.setNegativeButton("Cancel") { _, _ -> scheduleControlsHide() }.setOnCancelListener { scheduleControlsHide() }.show()
+    }
     private fun renderStatus() { if(error != "None") return; val label = if(demo) "Offline diagnostic" else playback!!.label; status.text = "$label  ·  ${format(seconds)} / ${format(duration)}" }
     private fun format(value: Double): String { val s = value.toLong().coerceAtLeast(0); return "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) }
     private fun save() { if(!demo) playback?.let { Store(this).save(it.copy(seconds=seconds,duration=duration)) } }
@@ -207,18 +242,27 @@ class PlayerActivity : Activity() {
         }
     }
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if(::playButton.isInitialized && event.action == KeyEvent.ACTION_DOWN) when(event.keyCode) {
-            KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> { togglePause(); return true }
-            KeyEvent.KEYCODE_MEDIA_PLAY -> { if(paused) togglePause(); return true }
-            KeyEvent.KEYCODE_MEDIA_PAUSE -> { if(!paused) togglePause(); return true }
-            KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> { seek(10.0); return true }
-            KeyEvent.KEYCODE_MEDIA_REWIND -> { seek(-10.0); return true }
-            KeyEvent.KEYCODE_MENU -> { diagnostics(); return true }
+        if(::playButton.isInitialized && event.action == KeyEvent.ACTION_DOWN) {
+            when(event.keyCode) {
+                KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> { togglePause(); return true }
+                KeyEvent.KEYCODE_MEDIA_PLAY -> { if(paused) togglePause(); showControls(); scheduleControlsHide(); return true }
+                KeyEvent.KEYCODE_MEDIA_PAUSE -> { if(!paused) togglePause(); showControls(); scheduleControlsHide(); return true }
+                KeyEvent.KEYCODE_MEDIA_FAST_FORWARD -> { showControls(); seek(10.0); scheduleControlsHide(); return true }
+                KeyEvent.KEYCODE_MEDIA_REWIND -> { showControls(); seek(-10.0); scheduleControlsHide(); return true }
+                KeyEvent.KEYCODE_MENU -> { showControls(); diagnostics(); return true }
+            }
+            if(!controlsVisible) when(event.keyCode) {
+                KeyEvent.KEYCODE_DPAD_LEFT -> { showControls(); seek(-10.0); scheduleControlsHide(); return true }
+                KeyEvent.KEYCODE_DPAD_RIGHT -> { showControls(); seek(10.0); scheduleControlsHide(); return true }
+                KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> { showControls(); togglePause(); return true }
+                KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_DPAD_DOWN -> { showControls(); scheduleControlsHide(); return true }
+            }
+            if(event.keyCode != KeyEvent.KEYCODE_BACK) { showControls(); scheduleControlsHide() }
         }
         return super.dispatchKeyEvent(event)
     }
-    override fun onResume() { super.onResume(); active = true; if(::playButton.isInitialized) { if(!demo && web == null && error == "None") { telemetrySequence = 0; started = SystemClock.elapsedRealtime(); setupWeb() }; web?.onResume(); native?.playWhenReady = !paused; if(!paused) command(JSONObject().put("action","play")); handler.post(tick) } }
-    override fun onPause() { active = false; handler.removeCallbacks(tick); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
+    override fun onResume() { super.onResume(); active = true; if(::playButton.isInitialized) { if(!demo && web == null && error == "None") { telemetrySequence = 0; started = SystemClock.elapsedRealtime(); setupWeb() }; web?.onResume(); native?.playWhenReady = !paused; if(!paused) command(JSONObject().put("action","play")); handler.post(tick); showControls(); scheduleControlsHide() } }
+    override fun onPause() { active = false; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
     override fun onSaveInstanceState(outState: Bundle) { outState.putDouble("seconds",seconds); outState.putDouble("duration",duration); super.onSaveInstanceState(outState) }
     private fun release() { native?.release(); native = null; web?.let { surface.removeView(it); it.stopLoading(); it.loadUrl("about:blank"); it.destroy() }; web = null }
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); if(::surface.isInitialized) release(); super.onDestroy() }
