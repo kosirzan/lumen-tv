@@ -51,7 +51,7 @@ class TvSmokeTest {
             SystemClock.sleep(6000)
             assertFalse("Controls should auto-hide",device.hasObject(By.text("Pause")))
             device.pressDPadUp()
-            assertTrue("D-pad should reveal controls",device.wait(Until.hasObject(By.text("Pause")),5000))
+            assertTrue("D-pad should reveal and focus controls",device.wait(Until.hasObject(By.text("Pause").focused(true)),5000))
             device.pressDPadCenter()
             assertTrue("Select should activate focused Pause",device.wait(Until.hasObject(By.text("Play")),10000))
             device.pressDPadRight(); device.pressDPadCenter()

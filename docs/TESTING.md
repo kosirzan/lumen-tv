@@ -98,8 +98,8 @@ Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 - Filename: `Lumen-TV-0.3.0-debug.apk`
 - Package: `dev.lumentv`
 - Version: `0.3.0` / versionCode `3`
-- Size: 7,677,614 bytes
-- SHA-256: `4d60f696e3cec46ef346bf37702126f41b33fc8087c38c30ded0cac799631a74`
+- Size: 7,653,273 bytes
+- SHA-256: `db1ccdf2ad8c04c610a7526edb1c7f6cc93e2e6fdb91b3a259de94a7cc2acff1`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.

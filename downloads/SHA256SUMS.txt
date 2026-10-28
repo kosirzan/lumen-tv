@@ -1,4 +1,4 @@
 b96b44ec8ea21895ed3ef4f1a60bf27dbb50335d0efe5099651f6d48a33e2550  Lumen-TV-0.2.0-debug.apk
 cbf61985e58ef4ec1ea8f8be61ef975ccf0b89b478c5fe64da2071b597b0e185  Lumen-TV-0.1.0-debug.apk
 44becd0cd102ad564b5dd2083f3fc1b8d69e0b6e5846427dd369e819754b7f62  lumen-tv.bundle
-4d60f696e3cec46ef346bf37702126f41b33fc8087c38c30ded0cac799631a74  Lumen-TV-0.3.0-debug.apk
+db1ccdf2ad8c04c610a7526edb1c7f6cc93e2e6fdb91b3a259de94a7cc2acff1  Lumen-TV-0.3.0-debug.apk

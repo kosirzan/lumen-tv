@@ -125,7 +125,7 @@ class PlayerActivity : Activity() {
         controlsVisible = visible
         controlsPanel.visibility = if(visible) View.VISIBLE else View.GONE
         status.visibility = if(visible || error != "None") View.VISIBLE else View.GONE
-        if(visible) playButton.post { if(currentFocus?.isShown != true) playButton.requestFocus() }
+        if(visible && currentFocus?.isShown != true) playButton.requestFocus()
     }
     private fun showControls() { handler.removeCallbacks(hideControls); setControlsVisible(true) }
     private fun scheduleControlsHide() { handler.removeCallbacks(hideControls); handler.postDelayed(hideControls,5000) }
