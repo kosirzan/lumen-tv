@@ -122,10 +122,11 @@ class PlayerActivity : Activity() {
     private fun playerButton(label: String, action: () -> Unit): Button = Ui.button(this,label) { showControls(); action(); scheduleControlsHide() }
     private fun setControlsVisible(visible: Boolean) {
         if(!::controlsPanel.isInitialized || !::status.isInitialized) return
+        val wereVisible = controlsVisible
         controlsVisible = visible
         controlsPanel.visibility = if(visible) View.VISIBLE else View.GONE
         status.visibility = if(visible || error != "None") View.VISIBLE else View.GONE
-        if(visible && currentFocus?.isShown != true) playButton.requestFocus()
+        if(visible && !wereVisible) playButton.requestFocus()
     }
     private fun showControls() { handler.removeCallbacks(hideControls); setControlsVisible(true) }
     private fun scheduleControlsHide() { handler.removeCallbacks(hideControls); handler.postDelayed(hideControls,5000) }
