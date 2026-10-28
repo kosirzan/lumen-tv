@@ -1,3 +1,11 @@
+# Archived 0.1.0 testing evidence
+
+This file preserves the original 0.1.0 emulator evidence. For the current
+0.2.0 APK, download/install instructions, host-migration fix, checksums and
+remaining physical-TV limits, use [README.md](README.md),
+[../docs/INSTALL.md](../docs/INSTALL.md), and
+[../docs/TESTING.md](../docs/TESTING.md).
+
 # Testing status — Lumen TV 0.1.0
 
 25 October 2026. **Installable testing build; end-to-end streaming is not verified.**

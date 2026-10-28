@@ -47,7 +47,9 @@ TMDB can reject a key, rate-limit, or restrict service availability.
 
 ## FramexTV public documentation
 
-https://framextv.xyz/api (also linked from its main site).
+https://framextv.cc/api. On 28 October 2026, `framextv.xyz` redirected public
+pages and embeds to `framextv.cc`; both HTTPS aliases remain allowlisted only
+for migration compatibility.
 
 The page is a client-rendered React document. HTTP fetch of the route returned
 the shell; the publicly delivered documentation component referenced by that
@@ -55,8 +57,8 @@ shell was read to retrieve the actual published documentation text. No private
 endpoint, authentication credential, extractor or decryption implementation was
 used. No video stream extraction was implemented.
 
-Documented movie route: `https://framextv.xyz/embed/{tmdbId}`
-Documented episode route: `https://framextv.xyz/embed/{tmdbId}/{season}/{episode}`
+Documented movie route: `https://framextv.cc/embed/{tmdbId}`
+Documented episode route: `https://framextv.cc/embed/{tmdbId}/{season}/{episode}`
 
 Parameters implemented: `autoplay`, `muted`, `controls`, `start`, `provider`.
 Documented postMessage actions implemented: `play`, `pause`, `seekBy`, `setVolume`,

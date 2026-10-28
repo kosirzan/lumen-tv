@@ -18,7 +18,11 @@ object ProgressPolicy {
     fun resumable(seconds: Double, duration: Double) = valid(seconds, duration) && seconds >= 5 && seconds / duration < 0.95
 }
 object Framex {
-    const val ORIGIN = "https://framextv.xyz"
+    // framextv.xyz began redirecting embeds to framextv.cc in October 2026.
+    // Keep the documented aliases for redirect/error/origin validation, but start
+    // new sessions on the current host so legacy WebViews do not need a redirect.
+    const val ORIGIN = "https://framextv.cc"
+    val allowedHosts = setOf("framextv.cc", "www.framextv.cc", "framextv.xyz", "www.framextv.xyz")
     val providers = listOf("auto", "barbarian", "archer", "goblin")
     fun embed(playback: Playback, provider: String = "auto", autoplay: Boolean = true): String {
         require(provider in providers)

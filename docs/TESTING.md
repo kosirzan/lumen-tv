@@ -1,6 +1,6 @@
-# Testing status — Lumen TV 0.1.0
+# Testing status — Lumen TV 0.2.0
 
-25 October 2026. **Installable testing build; end-to-end streaming is not verified.**
+28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
 ## Verified results
 
@@ -9,8 +9,8 @@
 | Kotlin / Android SDK debug build | PASS |
 | Minimum SDK in compiled APK | 23 (Android 6.0) |
 | Target / compile SDK | 35 |
-| JVM unit tests | 11 passed, 0 failed |
-| Android lint | 0 errors, 18 warnings |
+| JVM unit tests | 12 passed, 0 failed |
+| Android lint | 0 errors, 28 warnings |
 | APK signature | Verified; v1 and v2 signatures present |
 | Installation on Android 6 emulator | PASS |
 | Android instrumentation tests | 3 passed, 0 failed; 24.79 s test execution |
@@ -19,7 +19,8 @@
 | Offline H.264 playback progress, D-pad pause/resume and seek commands | PASS |
 | Native decoded video image | Visually confirmed in screenshot |
 | Live TMDB requests with personal key | NOT TESTED — no personal key supplied |
-| FramexTV first frame / controls / telemetry / resume | NOT TESTED |
+| FramexTV host redirect and public embed contract | PASS — live HTTPS redirect and current public client documentation inspected |
+| FramexTV first frame / controls / telemetry / resume | NOT TESTED on physical TV |
 | Physical Philips television | NOT TESTED |
 | GitHub repository | Created by user: kosirzan/lumen-tv; publication follows the original tests |
 | GitHub release / Actions | See repository for current status; original tests below ran in the cloud workspace |
@@ -66,33 +67,43 @@ unverified. Public documentation does not establish catalogue distribution right
 or guarantee a free service tier. Enable it only for content you may access.
 
 An obsolete TV WebView may be unable to run the provider's JavaScript or media
-stack even when this native APK installs. Provider login/forms, popups and
-third-party cookies are restricted by this client. There is no stream extraction,
+stack even when this native APK installs. Provider iframe cookies are allowed;
+popups and permission requests remain blocked. There is no stream extraction,
 DRM workaround, browser fingerprint workaround, or undocumented API fallback.
 No documented quality-selection or subtitle-language enumeration API was found;
 this app exposes subtitle indices and provider selection, not a native quality
 or audio-track catalogue. Play/Pause labels indicate the requested state because
 the documented API has no acknowledgement contract.
 
+Version 0.2.0 addresses a concrete integration failure observed on 28 October:
+the old `.xyz` embed redirects to `.cc`, while 0.1.0 restricted its iframe and
+origin validation to `.xyz`. The app now starts on `.cc`, permits only the known
+HTTPS migration aliases, matches the provider's documented iframe environment,
+and adds privacy-preserving provider resource, HTTP, console-error-count and
+renderer diagnostics. Console text and resource URLs are not retained.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-Filename: `Lumen-TV-0.1.0-debug.apk`  
-Package: `dev.lumentv`  
-Version: `0.1.0` / versionCode `1`  
-Size: 7,690,989 bytes  
-SHA-256: `cbf61985e58ef4ec1ea8f8be61ef975ccf0b89b478c5fe64da2071b597b0e185`
+- Filename: `Lumen-TV-0.2.0-debug.apk`
+- Package: `dev.lumentv`
+- Version: `0.2.0` / versionCode `2`
+- Size: 7,669,935 bytes
+- SHA-256: `b96b44ec8ea21895ed3ef4f1a60bf27dbb50335d0efe5099651f6d48a33e2550`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-Keep a stable private keystore for future updates; changing signing keys normally
-requires uninstalling and losing local data.
+The prior private debug key was not present in the repository, so its signature
+could not be preserved. Upgrading from 0.1.0 therefore requires uninstalling it,
+which removes local app data. Keep the new key or use a stable private release
+keystore for future updates.
 
 ## Evidence
 
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
-instrumentation output and screenshots. GitHub CI is supplied as source but has
-not been executed on GitHub. See CONTINUATION.md for exact publication steps.
+instrumentation output and screenshots. The emulator installation/instrumentation
+evidence is from 0.1.0; 0.2.0 was locally compiled, unit-tested, linted, packaged,
+and signature-verified. See GitHub Actions for the published commit's CI result.

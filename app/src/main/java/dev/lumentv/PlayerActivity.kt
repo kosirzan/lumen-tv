@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.os.Build
 import android.view.KeyEvent
 import android.view.Gravity
 import android.view.View
@@ -45,6 +46,10 @@ class PlayerActivity : Activity() {
     private var muted = false
     private var pendingPoll = false
     private var initialFocus = false
+    private var frameRequests = 0
+    private var frameHttpError = "None"
+    private var consoleErrors = 0
+    private var renderProcessLost = false
     private val tick = object : Runnable {
         override fun run() {
             if(!active) return
@@ -126,30 +131,55 @@ class PlayerActivity : Activity() {
                 mixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW
                 setSupportMultipleWindows(false); javaScriptCanOpenWindowsAutomatically = false
                 builtInZoomControls = false; displayZoomControls = false
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) safeBrowsingEnabled = true
             }
-            CookieManager.getInstance().setAcceptThirdPartyCookies(w,false)
+            // FramexTV documents an iframe integration. Match normal browser embed
+            // cookie behavior; the WebView remains isolated to this app's data.
+            CookieManager.getInstance().setAcceptCookie(true)
+            CookieManager.getInstance().setAcceptThirdPartyCookies(w,true)
             w.isFocusable = false; w.isFocusableInTouchMode = false
             webVersion = w.settings.userAgentString.substringAfter("Chrome/","unknown").substringBefore(" ")
             w.webChromeClient = object : WebChromeClient() {
                 override fun onPermissionRequest(request: PermissionRequest) { request.deny() }
-                override fun onConsoleMessage(message: ConsoleMessage): Boolean { return true } // Never log provider URLs or tokens.
+                override fun onConsoleMessage(message: ConsoleMessage): Boolean {
+                    // Count errors without retaining provider messages, URLs or tokens.
+                    if(message.messageLevel() == ConsoleMessage.MessageLevel.ERROR) consoleErrors++
+                    return true
+                }
             }
             w.webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = request.isForMainFrame
-                @Deprecated("Legacy WebView compatibility") override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean = true
+                @Deprecated("Legacy WebView compatibility") override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+                    // API 23 does not expose isForMainFrame. Permit only the provider's
+                    // HTTPS redirect aliases; external navigation stays blocked.
+                    val uri = runCatching { Uri.parse(url) }.getOrNull()
+                    return uri?.scheme != "https" || uri.host !in Framex.allowedHosts
+                }
+                override fun onLoadResource(view: WebView, url: String) {
+                    if(runCatching { Uri.parse(url).host in Framex.allowedHosts }.getOrDefault(false)) frameRequests++
+                }
                 override fun onReceivedError(view: WebView, request: WebResourceRequest, e: WebResourceError) {
-                    if(request.isForMainFrame || request.url.host in listOf("framextv.xyz","www.framextv.xyz")) { error = "WebView error ${e.errorCode}"; status.text = "Provider connection failed. Open Diagnostics or Retry." }
+                    if(request.url.host in Framex.allowedHosts) { error = "Provider resource error ${e.errorCode}"; status.text = "Provider connection failed. Open Diagnostics or Retry." }
                 }
                 override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: WebResourceResponse) {
-                    if(request.url.host in listOf("framextv.xyz","www.framextv.xyz")) { error = "Provider HTTP ${response.statusCode}" }
+                    if(request.url.host in Framex.allowedHosts) { frameHttpError = "HTTP ${response.statusCode}" }
                 }
                 override fun onReceivedSslError(view: WebView, ssl: android.webkit.SslErrorHandler, e: android.net.http.SslError) { ssl.cancel(); error = "TLS certificate validation failed"; status.text = "Secure connection failed. Check the TV date/time." }
+                @android.annotation.TargetApi(Build.VERSION_CODES.O)
+                override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+                    renderProcessLost = true
+                    error = if(detail.didCrash()) "WebView renderer crashed" else "WebView renderer was reclaimed"
+                    web = null
+                    surface.removeView(view)
+                    status.text = "Player stopped. Open Diagnostics, then Retry."
+                    return true
+                }
             }
             val p = playback!!.copy(seconds=seconds,duration=duration)
             val url = Framex.embed(p,provider,autoplay=!paused)
             // The host is ours, the iframe is cross-origin; no addJavascriptInterface is exposed.
-            val html = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src https://framextv.xyz https://www.framextv.xyz; script-src 'unsafe-inline'; style-src 'unsafe-inline'"><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#000;overflow:hidden}</style></head><body><iframe id="player" src="$url" allow="autoplay; fullscreen; encrypted-media" sandbox="allow-scripts allow-same-origin allow-presentation" allowfullscreen></iframe><script>
-            (function(){var f=document.getElementById('player');window.framexState={};window.sendFramex=function(c){f.contentWindow.postMessage(c,'https://framextv.xyz');f.contentWindow.postMessage(c,'https://www.framextv.xyz');};window.addEventListener('message',function(e){if(e.source!==f.contentWindow||(e.origin!=='https://framextv.xyz'&&e.origin!=='https://www.framextv.xyz'))return;var d=e.data;if(d&&d.event==='frameXTV:timeupdate'&&typeof d.currentTime==='number'&&typeof d.duration==='number'&&isFinite(d.currentTime)&&isFinite(d.duration)){window.framexState={currentTime:d.currentTime,duration:d.duration,sequence:(window.framexState.sequence||0)+1};}});})();
+            val html = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src https://framextv.cc https://www.framextv.cc https://framextv.xyz https://www.framextv.xyz; script-src 'unsafe-inline'; style-src 'unsafe-inline'"><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#000;overflow:hidden}</style></head><body><iframe id="player" src="$url" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe><script>
+            (function(){var f=document.getElementById('player'),origins=['https://framextv.cc','https://www.framextv.cc','https://framextv.xyz','https://www.framextv.xyz'];window.framexState={};window.sendFramex=function(c){for(var i=0;i<origins.length;i++)f.contentWindow.postMessage(c,origins[i]);};window.addEventListener('message',function(e){if(e.source!==f.contentWindow||origins.indexOf(e.origin)<0)return;var d=e.data;if(d&&d.event==='frameXTV:timeupdate'&&typeof d.currentTime==='number'&&typeof d.duration==='number'&&isFinite(d.currentTime)&&isFinite(d.duration)){window.framexState={currentTime:d.currentTime,duration:d.duration,sequence:(window.framexState.sequence||0)+1};}});})();
             </script></body></html>"""
             surface.addView(w,FrameLayout.LayoutParams(-1,-1))
             w.loadDataWithBaseURL("https://appassets.androidplatform.net/player/",html,"text/html","UTF-8",null)
@@ -162,11 +192,11 @@ class PlayerActivity : Activity() {
     private fun renderStatus() { if(error != "None") return; val label = if(demo) "Offline diagnostic" else playback!!.label; status.text = "$label  ·  ${format(seconds)} / ${format(duration)}" }
     private fun format(value: Double): String { val s = value.toLong().coerceAtLeast(0); return "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) }
     private fun save() { if(!demo) playback?.let { Store(this).save(it.copy(seconds=seconds,duration=duration)) } }
-    private fun retry() { save(); release(); surface.removeAllViews(); error = "None"; pendingPoll = false; lastTelemetry = 0; telemetrySequence = 0; started = SystemClock.elapsedRealtime(); paused = false; muted = false; playButton.text = "Pause"; if(demo) setupNative() else setupWeb(); if(active) { handler.removeCallbacks(tick); handler.post(tick) } }
+    private fun retry() { save(); release(); surface.removeAllViews(); error = "None"; frameHttpError = "None"; frameRequests = 0; consoleErrors = 0; renderProcessLost = false; pendingPoll = false; lastTelemetry = 0; telemetrySequence = 0; started = SystemClock.elapsedRealtime(); paused = false; muted = false; playButton.text = "Pause"; if(demo) setupNative() else setupWeb(); if(active) { handler.removeCallbacks(tick); handler.post(tick) } }
     private fun diagnostics() {
         val memory = android.app.ActivityManager.MemoryInfo(); (getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager).getMemoryInfo(memory)
         val age = if(lastTelemetry == 0L) "None" else "${(SystemClock.elapsedRealtime() - lastTelemetry) / 1000}s ago"
-        val text = "Mode: ${if(demo) "Bundled H.264/AAC clip · native Media3" else "FramexTV documented iframe"}\nAndroid: ${android.os.Build.VERSION.RELEASE} / API ${android.os.Build.VERSION.SDK_INT}\nWebView Chrome: $webVersion\nProvider: $provider\nProgress: ${format(seconds)} / ${format(duration)}\nLast telemetry: $age\nAvailable memory: ${memory.availMem / 1048576} MiB\nLow memory: ${memory.lowMemory}\nError: $error\n\nProvider commands have no documented acknowledgement. The Play/Pause label shows requested state. No video extraction or DRM bypass is performed. If native test succeeds but FramexTV fails, check WebView compatibility, provider availability and permissions."
+        val text = "Mode: ${if(demo) "Bundled H.264/AAC clip · native Media3" else "FramexTV documented iframe"}\nAndroid: ${android.os.Build.VERSION.RELEASE} / API ${android.os.Build.VERSION.SDK_INT}\nWebView Chrome: $webVersion\nEmbed origin: ${Framex.ORIGIN}\nProvider: $provider\nProgress: ${format(seconds)} / ${format(duration)}\nLast telemetry: $age\nProvider resources seen: $frameRequests\nProvider HTTP error: $frameHttpError\nConsole errors (contents not retained): $consoleErrors\nRenderer lost: $renderProcessLost\nAvailable memory: ${memory.availMem / 1048576} MiB\nLow memory: ${memory.lowMemory}\nError: $error\n\nProvider commands have no documented acknowledgement. The Play/Pause label shows requested state. No video extraction or DRM bypass is performed. If native test succeeds but FramexTV fails, check WebView compatibility, provider availability and permissions."
         AlertDialog.Builder(this).setTitle("Player diagnostics").setMessage(text).setPositiveButton("Close",null).show()
     }
     override fun onWindowFocusChanged(hasFocus: Boolean) {
