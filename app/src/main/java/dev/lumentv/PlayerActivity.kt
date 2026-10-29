@@ -64,6 +64,12 @@ class PlayerActivity : Activity() {
     private var telemetryMessages = 0L
     private var cursorX = 0f
     private var cursorY = 0f
+    private var snapZone = 0 // 0 bottom controls, 1 timeline, 2 popup menu
+    private var snapIndex = 0
+    private var popupOwnerIndex = 2
+    private var autoEmbeddedStarted = false
+    private val bottomSnapX = PlayerSnap.bottomX // play, captions, settings, fullscreen
+    private val menuSnapY = PlayerSnap.menuY
     private val hideControls = Runnable { setControlsVisible(false) }
     private val tick = object : Runnable {
         override fun run() {
@@ -114,7 +120,7 @@ class PlayerActivity : Activity() {
         if(!demo) {
             controls.addView(playerButton("Source") { chooseProvider() })
             controls.addView(playerButton("Subtitles") { chooseSubtitle() })
-            controls.addView(playerButton("Player UI") { enterEmbeddedMode() })
+            controls.addView(playerButton("Framex controls") { enterEmbeddedMode() })
         }
         controls.addView(playerButton("Retry") { retry() })
         controls.addView(playerButton("Diagnostics") { diagnostics() })
@@ -135,16 +141,16 @@ class PlayerActivity : Activity() {
                 })
             }
             addView(seekBar,LinearLayout.LayoutParams(-1,-2))
-            addView(Ui.text(this@PlayerActivity,"Remote: timeline seeks 30s · hidden ◀/▶ seeks 10s · OK play/pause · Player UI hands keys to FramexTV",13f).apply { gravity = Gravity.CENTER })
+            addView(Ui.text(this@PlayerActivity,"Fallback controls · Framex controls returns to the mapped embedded UI",13f).apply { gravity = Gravity.CENTER })
             addView(HorizontalScrollView(this@PlayerActivity).apply { isFocusable = false; addView(controls) })
         }
         root.addView(controlsPanel,FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM))
         cursorView = TextView(this).apply {
-            text = "●"; textSize = 18f; gravity = Gravity.CENTER; setTextColor(Color.BLACK)
-            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(0xFFFFD54F.toInt()); setStroke(Ui.dp(this@PlayerActivity,2),Color.WHITE) }
+            text = ""; gravity = Gravity.CENTER
+            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(Color.TRANSPARENT); setStroke(Ui.dp(this@PlayerActivity,3),0xFFFFD54F.toInt()) }
             visibility = View.GONE; isFocusable = false; isClickable = false
         }
-        val cursorSize = Ui.dp(this,34)
+        val cursorSize = Ui.dp(this,44)
         root.addView(cursorView,FrameLayout.LayoutParams(cursorSize,cursorSize))
         setContentView(root)
         started = SystemClock.elapsedRealtime()
@@ -213,6 +219,12 @@ class PlayerActivity : Activity() {
                 override fun onLoadResource(view: WebView, url: String) {
                     if(runCatching { Uri.parse(url).host in Framex.allowedHosts }.getOrDefault(false)) frameRequests++
                 }
+                override fun onPageFinished(view: WebView, url: String) {
+                    if(url.startsWith("https://appassets.androidplatform.net/") && !autoEmbeddedStarted) {
+                        autoEmbeddedStarted = true
+                        handler.postDelayed({ if(active && web === view && !embeddedMode) enterEmbeddedMode() },1500)
+                    }
+                }
                 override fun onReceivedError(view: WebView, request: WebResourceRequest, e: WebResourceError) {
                     if(request.url.host in Framex.allowedHosts) { error = "Provider resource error ${e.errorCode}"; status.text = "Provider connection failed. Open Diagnostics or Retry."; showControls() }
                 }
@@ -263,9 +275,9 @@ class PlayerActivity : Activity() {
         setControlsVisible(false)
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         w.isFocusable = true; w.isFocusableInTouchMode = true; w.requestFocus()
-        cursorX = (w.width / 2f).coerceAtLeast(1f); cursorY = (w.height / 2f).coerceAtLeast(1f)
-        cursorView.visibility = View.VISIBLE; positionCursor(); sendPointerHover()
-        Toast.makeText(this,"FramexTV cursor · D-pad moves · OK clicks · Back or Menu returns",Toast.LENGTH_LONG).show()
+        snapZone = 0; snapIndex = 0; popupOwnerIndex = 2
+        cursorView.visibility = View.VISIBLE; applySnapPosition(); sendPointerHover()
+        Toast.makeText(this,"FramexTV controls · arrows navigate · OK selects · Menu opens Lumen controls",Toast.LENGTH_LONG).show()
     }
     private fun exitEmbeddedMode() {
         embeddedMode = false
@@ -275,14 +287,48 @@ class PlayerActivity : Activity() {
         showControls(); scheduleControlsHide()
     }
     private fun positionCursor() {
-        cursorView.x = cursorX - cursorView.width.coerceAtLeast(Ui.dp(this,34)) / 2f
-        cursorView.y = cursorY - cursorView.height.coerceAtLeast(Ui.dp(this,34)) / 2f
+        cursorView.x = cursorX - cursorView.width.coerceAtLeast(Ui.dp(this,44)) / 2f
+        cursorView.y = cursorY - cursorView.height.coerceAtLeast(Ui.dp(this,44)) / 2f
     }
-    private fun moveCursor(dx: Float, dy: Float) {
+    private fun applySnapPosition() {
         val w = web ?: return
-        cursorX = (cursorX + dx).coerceIn(0f,w.width.coerceAtLeast(1).toFloat())
-        cursorY = (cursorY + dy).coerceIn(0f,w.height.coerceAtLeast(1).toFloat())
+        when(snapZone) {
+            0 -> { cursorX = (w.width * bottomSnapX[snapIndex]).toFloat(); cursorY = w.height * 0.958f }
+            1 -> {
+                val ratio = if(duration > 0) (seconds / duration).coerceIn(0.02,0.98) else (cursorX / w.width.coerceAtLeast(1)).coerceIn(0.02f,0.98f).toDouble()
+                cursorX = (w.width * ratio).toFloat(); cursorY = w.height * 0.920f
+            }
+            else -> { cursorX = w.width * 0.84f; cursorY = (w.height * menuSnapY[snapIndex]).toFloat() }
+        }
         positionCursor(); sendPointerHover()
+    }
+    private fun snapHorizontal(direction: Int) {
+        if(snapZone == 0) snapIndex = PlayerSnap.move(snapIndex,direction,bottomSnapX.lastIndex)
+        else if(snapZone == 1) {
+            if(duration > 0) seekTo(seconds + direction * 30.0)
+            else {
+                val w = web ?: return
+                cursorX = (cursorX + direction * w.width * 0.04f).coerceIn(w.width * 0.02f,w.width * 0.98f)
+                positionCursor(); sendPointerHover(); clickPointer(); return
+            }
+        } else if(direction < 0) {
+            clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex
+        }
+        applySnapPosition()
+    }
+    private fun snapVertical(direction: Int) {
+        when(snapZone) {
+            0 -> if(direction < 0) snapZone = 1
+            1 -> if(direction > 0) { snapZone = 0; snapIndex = 0 }
+            else -> snapIndex = PlayerSnap.move(snapIndex,direction,menuSnapY.lastIndex)
+        }
+        applySnapPosition()
+    }
+    private fun selectSnap() {
+        clickPointer()
+        if(snapZone == 0 && (snapIndex == 1 || snapIndex == 2)) {
+            popupOwnerIndex = snapIndex; snapZone = 2; snapIndex = menuSnapY.lastIndex; applySnapPosition()
+        }
     }
     private fun pointerEvent(action: Int, downTime: Long = SystemClock.uptimeMillis()): MotionEvent =
         MotionEvent.obtain(downTime,SystemClock.uptimeMillis(),action,cursorX,cursorY,0).apply { source = InputDevice.SOURCE_MOUSE }
@@ -292,6 +338,10 @@ class PlayerActivity : Activity() {
         val down = SystemClock.uptimeMillis()
         w.dispatchTouchEvent(pointerEvent(MotionEvent.ACTION_DOWN,down))
         w.dispatchTouchEvent(pointerEvent(MotionEvent.ACTION_UP,down))
+    }
+    private fun clickAtNormalized(x: Double,y: Double) {
+        val w = web ?: return
+        cursorX = (w.width * x).toFloat(); cursorY = (w.height * y).toFloat(); clickPointer()
     }
     private fun chooseProvider() {
         handler.removeCallbacks(hideControls)
@@ -344,14 +394,18 @@ class PlayerActivity : Activity() {
         }
         if(::playButton.isInitialized && event.action == KeyEvent.ACTION_DOWN) {
             if(embeddedMode) {
-                if(event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_MENU) { consumeEmbeddedExitKeyUp = true; exitEmbeddedMode(); return true }
-                val step = Ui.dp(this,42).toFloat()
+                if(event.keyCode == KeyEvent.KEYCODE_MENU) { consumeEmbeddedExitKeyUp = true; exitEmbeddedMode(); return true }
+                if(event.keyCode == KeyEvent.KEYCODE_BACK) {
+                    consumeEmbeddedExitKeyUp = true
+                    if(snapZone == 2) { clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex; applySnapPosition() } else exitEmbeddedMode()
+                    return true
+                }
                 when(event.keyCode) {
-                    KeyEvent.KEYCODE_DPAD_LEFT -> moveCursor(-step,0f)
-                    KeyEvent.KEYCODE_DPAD_RIGHT -> moveCursor(step,0f)
-                    KeyEvent.KEYCODE_DPAD_UP -> moveCursor(0f,-step)
-                    KeyEvent.KEYCODE_DPAD_DOWN -> moveCursor(0f,step)
-                    KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> clickPointer()
+                    KeyEvent.KEYCODE_DPAD_LEFT -> snapHorizontal(-1)
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> snapHorizontal(1)
+                    KeyEvent.KEYCODE_DPAD_UP -> snapVertical(-1)
+                    KeyEvent.KEYCODE_DPAD_DOWN -> snapVertical(1)
+                    KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> selectSnap()
                     KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> togglePause()
                     else -> return super.dispatchKeyEvent(event)
                 }

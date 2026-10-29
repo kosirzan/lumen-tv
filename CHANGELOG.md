@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.6.0 — 2026-10-29
+
+- Make FramexTV controls the automatic default when playback opens; Lumen's
+  overlay is now a fallback reached with Menu.
+- Replace free cursor movement with proportional snap targets measured from the
+  live 1280×720 FramexTV layout: Play, Captions, Settings, Fullscreen and timeline.
+- Map Left/Right across the bottom actions, Up to the timeline, timeline
+  Left/Right to 30-second seeking, and vertical popup navigation for captions
+  and settings menus.
+- Use normalized coordinates so the focus ring scales with the WebView size.
+
 ## 0.5.0 — 2026-10-29
 
 - Replace Player UI keyboard forwarding with a visible remote-controlled cursor:

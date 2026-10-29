@@ -17,6 +17,11 @@ object ProgressPolicy {
     fun valid(seconds: Double, duration: Double) = seconds.isFinite() && duration.isFinite() && seconds >= 0 && duration > 0 && seconds <= duration + 2
     fun resumable(seconds: Double, duration: Double) = valid(seconds, duration) && seconds >= 5 && seconds / duration < 0.95
 }
+object PlayerSnap {
+    val bottomX = doubleArrayOf(0.024,0.858,0.888,0.976)
+    val menuY = doubleArrayOf(0.58,0.66,0.74,0.82)
+    fun move(index: Int, direction: Int, lastIndex: Int) = (index + direction).coerceIn(0,lastIndex)
+}
 object Framex {
     // framextv.xyz began redirecting embeds to framextv.cc in October 2026.
     // Keep the documented aliases for redirect/error/origin validation, but start

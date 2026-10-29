@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.5.0
+# Testing status — Lumen TV 0.6.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -103,20 +103,26 @@ provider still determines its control layout and whether each control responds.
 Invalid TLS resources remain blocked, but a nonfatal resource failure is recorded
 in Diagnostics rather than replacing the title/status for the whole session.
 
+Version 0.6.0 makes FramexTV navigation the default and replaces free cursor
+movement with normalized snap targets based on the live 1280×720 player layout.
+The mapped targets scale with WebView size. Captions/settings popup rows use
+proportional vertical targets; their exact physical-TV behavior remains subject
+to provider layout changes and must be verified on the Philips set.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.5.0-debug.apk`
+- Filename: `Lumen-TV-0.6.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.5.0` / versionCode `5`
-- Size: 7,642,432 bytes
-- SHA-256: `af8efaa98dc889c6bf8c424d613727397d6026640888a4f765aab1838cabe9da`
+- Version: `0.6.0` / versionCode `6`
+- Size: 7,711,957 bytes
+- SHA-256: `2f467604b3cf68f027f14be4822627ee1d95ed5a834cd9529029edfc7f4342bf`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.5.0 APK has the same signing certificate as 0.2.0–0.4.0 and can update them in
+The 0.6.0 APK has the same signing certificate as 0.2.0–0.5.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -125,5 +131,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.5.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.6.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.
