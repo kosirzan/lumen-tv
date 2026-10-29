@@ -18,8 +18,11 @@ object ProgressPolicy {
     fun resumable(seconds: Double, duration: Double) = valid(seconds, duration) && seconds >= 5 && seconds / duration < 0.95
 }
 object PlayerSnap {
-    val bottomX = doubleArrayOf(0.024,0.858,0.888,0.976)
-    val menuY = doubleArrayOf(0.58,0.66,0.74,0.82)
+    // Current FramexTV bottom bar: play, volume, captions, settings, cast,
+    // picture-in-picture and fullscreen. Coordinates are viewport ratios.
+    val bottomX = doubleArrayOf(0.024,0.052,0.858,0.888,0.918,0.947,0.976)
+    // Covers short settings panels and long subtitle/source lists.
+    val menuY = doubleArrayOf(0.22,0.28,0.34,0.40,0.46,0.52,0.58,0.64,0.70,0.76,0.82)
     fun move(index: Int, direction: Int, lastIndex: Int) = (index + direction).coerceIn(0,lastIndex)
 }
 object Framex {

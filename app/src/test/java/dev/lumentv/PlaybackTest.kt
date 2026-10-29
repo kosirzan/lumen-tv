@@ -17,6 +17,8 @@ class PlaybackTest {
     @Test fun invalidProgressIsRejected() { listOf(Double.NaN,Double.POSITIVE_INFINITY,-1.0,1003.0).forEach { assertFalse(ProgressPolicy.valid(it,1000.0)) }; assertFalse(ProgressPolicy.valid(10.0,0.0)) }
     @Test fun resumeThresholds() { assertFalse(ProgressPolicy.resumable(4.9,1000.0)); assertTrue(ProgressPolicy.resumable(5.0,1000.0)); assertTrue(ProgressPolicy.resumable(949.0,1000.0)); assertFalse(ProgressPolicy.resumable(950.0,1000.0)) }
     @Test fun mappedPlayerFocusStaysInsideRows() {
+        assertEquals(7,PlayerSnap.bottomX.size)
+        assertEquals(11,PlayerSnap.menuY.size)
         assertEquals(0,PlayerSnap.move(0,-1,PlayerSnap.bottomX.lastIndex))
         assertEquals(1,PlayerSnap.move(0,1,PlayerSnap.bottomX.lastIndex))
         assertEquals(PlayerSnap.bottomX.lastIndex,PlayerSnap.move(PlayerSnap.bottomX.lastIndex,1,PlayerSnap.bottomX.lastIndex))

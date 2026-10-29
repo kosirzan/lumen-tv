@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.6.0
+# Testing status — Lumen TV 0.7.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -109,20 +109,25 @@ The mapped targets scale with WebView size. Captions/settings popup rows use
 proportional vertical targets; their exact physical-TV behavior remains subject
 to provider layout changes and must be verified on the Philips set.
 
+Version 0.7.0 adds the previously omitted Volume, Cast and Picture-in-Picture
+targets, expands popup coverage to eleven rows, and replaces the circle with a
+control-sized translucent focus highlight. Both the highlight and FramexTV bar
+are kept visible for five seconds after the last mapped remote action.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.6.0-debug.apk`
+- Filename: `Lumen-TV-0.7.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.6.0` / versionCode `6`
-- Size: 7,711,957 bytes
-- SHA-256: `2f467604b3cf68f027f14be4822627ee1d95ed5a834cd9529029edfc7f4342bf`
+- Version: `0.7.0` / versionCode `7`
+- Size: 7,644,826 bytes
+- SHA-256: `38d81bb7c374cb2a3dc9970dfdca50267e583ebb8e9230233b2f3eec7fd4368f`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.6.0 APK has the same signing certificate as 0.2.0–0.5.0 and can update them in
+The 0.7.0 APK has the same signing certificate as 0.2.0–0.6.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -131,5 +136,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.6.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.7.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

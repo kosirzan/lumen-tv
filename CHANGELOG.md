@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.7.0 — 2026-10-29
+
+- Map every visible FramexTV bottom action: Play, Volume, Captions, Settings,
+  Cast, Picture-in-Picture and Fullscreen.
+- Expand popup navigation from four rows to eleven proportional rows so longer
+  subtitle and settings lists are reachable.
+- Replace the persistent yellow circle with a translucent rounded focus highlight
+  sized to the selected button, timeline point or popup row.
+- Hide the focus highlight after five seconds of inactivity and send a safe hover
+  refresh at two seconds so FramexTV's own control bar remains visible for the
+  requested five-second interaction window.
+
 ## 0.6.0 — 2026-10-29
 
 - Make FramexTV controls the automatic default when playback opens; Lumen's
