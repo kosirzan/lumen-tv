@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.3.0
+# Testing status — Lumen TV 0.4.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -90,20 +90,26 @@ document a direct quality-selection command; provider selection influences the
 available stream, while adaptive playback and actual resolution remain under
 FramexTV's control.
 
+Version 0.4.0 removes the false-positive top-screen progress warning, accepts
+documented progress telemetry in multiple safe payload shapes, adds an exact
+seek timeline when duration is known, and provides Player UI mode for passing
+remote events into FramexTV's own visible controls. FramexTV still controls which
+native settings its embedded UI exposes.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.3.0-debug.apk`
+- Filename: `Lumen-TV-0.4.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.3.0` / versionCode `3`
-- Size: 7,676,366 bytes
-- SHA-256: `6d2530ae0b66e54a752dbe49866f043cc0c34c7c66eb66180d0929223929ddcf`
+- Version: `0.4.0` / versionCode `4`
+- Size: 7,681,606 bytes
+- SHA-256: `02d9fcccd34287e8ef741091480185ddacadc6f5b3b8f5c25381c144fad11e52`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.3.0 APK has the same signing certificate as 0.2.0 and can update it in
+The 0.4.0 APK has the same signing certificate as 0.2.0/0.3.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -112,5 +118,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.3.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.4.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

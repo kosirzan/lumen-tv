@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.4.0 — 2026-10-29
+
+- Stop replacing the title with an alarming warning when optional FramexTV
+  progress telemetry is absent; Diagnostics now explains the limited impact.
+- Accept documented progress events in object, JSON-string, and nested payload
+  forms while continuing to require a known FramexTV HTTPS origin.
+- Add a remote-focusable timeline. When FramexTV supplies duration telemetry,
+  Left/Right moves by 30 seconds and sends its documented exact `seek` command.
+- Add Player UI mode, which deliberately transfers focus and remote keys into
+  FramexTV's own visible control layer. Back or Menu returns to Lumen controls.
+- Preserve the package and 0.2.0+ signing identity for in-place installation.
+
 ## 0.3.0 — 2026-10-28
 
 - Replace the permanently visible player strip with a full-screen overlay that

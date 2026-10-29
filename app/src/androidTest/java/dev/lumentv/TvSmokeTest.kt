@@ -47,6 +47,7 @@ class TvSmokeTest {
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             assertTrue(device.wait(Until.hasObject(By.text("Pause")),15000))
             assertTrue(device.wait(Until.hasObject(By.text(java.util.regex.Pattern.compile(".*0:00:0[2-9] / 0:00:20.*"))),30000))
+            assertTrue("Native timeline should be enabled",device.hasObject(By.clazz("android.widget.SeekBar").enabled(true)))
             device.takeScreenshot(java.io.File(context.filesDir,"player.png"))
             SystemClock.sleep(6000)
             assertFalse("Controls should auto-hide",device.hasObject(By.text("Pause")))

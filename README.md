@@ -10,13 +10,13 @@ and video content have separate licences. This app does not grant video rights.
 
 ## Download
 
-- [Download Lumen TV 0.3.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.3.0-debug.apk)
+- [Download Lumen TV 0.4.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.4.0-debug.apk)
 - [Installation instructions](docs/INSTALL.md)
 - [Testing results and remaining checks](docs/TESTING.md)
 
-The APK is a debug-signed testing build. Version 0.3.0 adds auto-hiding,
-remote-first player controls, a recommended high-quality source, and Continue
-Watching actions. Live playback on
+The APK is a debug-signed testing build. Version 0.4.0 adds a seek timeline,
+more tolerant progress telemetry, and a Player UI mode that transfers remote
+input to FramexTV's own controls. Live playback on
 the physical Philips TV still requires device verification. See `downloads/SHA256SUMS.txt` to
 verify the file. If the TV browser cannot follow GitHub's redirect, use the raw
 URL linked in `downloads/README.md`.
@@ -29,7 +29,9 @@ URL linked in `downloads/README.md`.
 - Local watchlist (200 titles) and Continue Watching (100 episode/movie positions).
 - Resume after 5 seconds; completion at 95% removes a position from Continue Watching.
 - Documented FramexTV movie/TV embeds and postMessage controls: play, pause,
-  relative seek, volume, provider and subtitle index.
+  relative/exact seek, volume, provider and subtitle index.
+- Exact-time seek timeline when FramexTV supplies playback duration; Player UI
+  mode for direct remote interaction with the embedded control layer.
 - Five-second auto-hiding player overlay; D-pad Left/Right seek and OK toggles
   playback when hidden. Any navigation key reveals the native controls.
 - Continue Watching menu with Resume, Start from beginning, Remove and Details.
