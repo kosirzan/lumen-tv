@@ -1,7 +1,7 @@
 # Archived 0.1.0 testing evidence
 
 This file preserves the original 0.1.0 emulator evidence. For the current
-0.10.0 APK, download/install instructions, player improvements, checksums and
+0.11.0 APK, download/install instructions, player improvements, checksums and
 remaining physical-TV limits, use [README.md](README.md),
 [../docs/INSTALL.md](../docs/INSTALL.md), and
 [../docs/TESTING.md](../docs/TESTING.md).

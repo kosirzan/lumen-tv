@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.11.0 — 2026-10-29
+
+- Replace fixed proportional button maps with a guided, per-TV calibration after
+  the provider's late responsive layout has settled.
+- Record the real centers of all seven bottom controls plus the first and last
+  Settings rows, then interpolate popup navigation from those physical anchors.
+- Save calibration privately across updates and add reset/recalibrate controls.
+- Retain FramexTV's native mouse hover and Lumen's CSS-space glow at each learned
+  position, with the five-second interaction timeout.
+
 ## 0.10.0 — 2026-10-29
 
 - Remove the separately positioned Android focus square, whose coordinate space

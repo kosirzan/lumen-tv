@@ -50,4 +50,16 @@ class Store(context: Context) {
         prefs.edit().putString("history", JSONArray(list.map { json(it.title).put("season", it.season).put("episode", it.episode).put("seconds", it.seconds).put("duration", it.duration) }).toString()).apply()
     }
     fun clearHistory() { prefs.edit().remove("history").apply() }
+    fun playerCalibration(): PlayerCalibration? = runCatching {
+        val o = JSONObject(prefs.getString("playerCalibration", "") ?: "")
+        val a = o.getJSONArray("bottom")
+        val points = (0 until a.length()).map { i -> a.getJSONObject(i).let { CalibratedPoint(it.getDouble("x"),it.getDouble("y")) } }
+        PlayerCalibration(points,o.getDouble("menuX"),o.getDouble("menuTop"),o.getDouble("menuBottom")).takeIf { it.valid }
+    }.getOrNull()
+    fun savePlayerCalibration(value: PlayerCalibration) {
+        require(value.valid)
+        val points = JSONArray(value.bottom.map { JSONObject().put("x",it.x).put("y",it.y) })
+        prefs.edit().putString("playerCalibration",JSONObject().put("bottom",points).put("menuX",value.menuX).put("menuTop",value.menuTop).put("menuBottom",value.menuBottom).toString()).apply()
+    }
+    fun clearPlayerCalibration() { prefs.edit().remove("playerCalibration").apply() }
 }

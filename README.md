@@ -10,14 +10,13 @@ and video content have separate licences. This app does not grant video rights.
 
 ## Download
 
-- [Download Lumen TV 0.10.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.10.0-debug.apk)
+- [Download Lumen TV 0.11.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.11.0-debug.apk)
 - [Installation instructions](docs/INSTALL.md)
 - [Testing results and remaining checks](docs/TESTING.md)
 
-The APK is a debug-signed testing build. Version 0.10.0 renders its TV focus glow
-inside the same CSS viewport as FramexTV, preserves the provider's native hover,
-and removes responsive-layout positions confirmed as blank. Lumen's fallback overlay
-remains available with Menu. Live playback on
+The APK is a debug-signed testing build. Version 0.11.0 replaces guessed control
+coordinates with a one-time guided calibration performed after FramexTV finishes
+its responsive layout. Lumen's fallback overlay remains available with Menu. Live playback on
 the physical Philips TV still requires device verification. See `downloads/SHA256SUMS.txt` to
 verify the file. If the TV browser cannot follow GitHub's redirect, use the raw
 URL linked in `downloads/README.md`.
@@ -31,8 +30,8 @@ URL linked in `downloads/README.md`.
 - Resume after 5 seconds; completion at 95% removes a position from Continue Watching.
 - Documented FramexTV movie/TV embeds and postMessage controls: play, pause,
   relative/exact seek, volume, provider and subtitle index.
-- Default mapped FramexTV navigation covering the five physical-TV-confirmed
-  responsive controls, timeline and popup rows; Menu opens Lumen's fallback controls.
+- Per-TV guided FramexTV control calibration with seven bottom controls and learned
+  popup bounds; Menu opens Lumen's fallback controls.
 - Five-second auto-hiding player overlay; D-pad Left/Right seek and OK toggles
   playback when hidden. Any navigation key reveals the native controls.
 - Continue Watching menu with Resume, Start from beginning, Remove and Details.

@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.10.0
+# Testing status — Lumen TV 0.11.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -9,8 +9,8 @@
 | Kotlin / Android SDK debug build | PASS |
 | Minimum SDK in compiled APK | 23 (Android 6.0) |
 | Target / compile SDK | 35 |
-| JVM unit tests | 14 passed, 0 failed |
-| Android lint | 0 errors, 28 warnings |
+| JVM unit tests | 15 passed, 0 failed |
+| Android lint | 0 errors, 30 warnings |
 | APK signature | Verified; v1 and v2 signatures present |
 | Installation on Android 6 emulator | PASS |
 | Android instrumentation tests | 3 passed, 0 failed; 24.79 s test execution |
@@ -131,20 +131,29 @@ CSS viewport as the iframe, while real mouse hover continues inside FramexTV.
 The control map returns to the positions that produced working hover in 0.8.0
 and omits the final two positions confirmed as blank on the responsive TV layout.
 
+Version 0.11.0 addresses the root cause visible in the supplied physical-TV
+photos: FramexTV moves its controls after metadata loads, and its responsive
+layout does not share one stable coordinate map across displays. On first use,
+Lumen waits six seconds, then guides the user to place the glow over all seven
+bottom controls and the first/last Settings rows. Those actual TV coordinates
+are saved locally and reused; popup rows are interpolated between the measured
+anchors. Cross-origin iframe isolation prevents reading the provider's DOM bounds
+directly, so this calibration is the secure alternative to another guessed map.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.10.0-debug.apk`
+- Filename: `Lumen-TV-0.11.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.10.0` / versionCode `10`
-- Size: 7,644,896 bytes
-- SHA-256: `bbb06a860666de99806db81f7f95498fb79bb146a45f221d886e62adc5117c39`
+- Version: `0.11.0` / versionCode `11`
+- Size: 7,724,056 bytes
+- SHA-256: `5827860b03c583e8e255dc1a25296f8bbc9635f1db0bee9b5cacddf3ec53c5cb`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.10.0 APK has the same signing certificate as 0.2.0–0.9.0 and can update them in
+The 0.11.0 APK has the same signing certificate as 0.2.0–0.10.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -153,5 +162,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.10.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.11.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

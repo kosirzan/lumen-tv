@@ -17,6 +17,11 @@ object ProgressPolicy {
     fun valid(seconds: Double, duration: Double) = seconds.isFinite() && duration.isFinite() && seconds >= 0 && duration > 0 && seconds <= duration + 2
     fun resumable(seconds: Double, duration: Double) = valid(seconds, duration) && seconds >= 5 && seconds / duration < 0.95
 }
+data class CalibratedPoint(val x: Double,val y: Double)
+data class PlayerCalibration(val bottom: List<CalibratedPoint>,val menuX: Double,val menuTop: Double,val menuBottom: Double) {
+    val valid: Boolean get() = bottom.size == 7 && bottom.all { it.x in 0.0..1.0 && it.y in 0.0..1.0 } && menuX in 0.0..1.0 && menuTop in 0.0..1.0 && menuBottom in menuTop..1.0
+    fun menuRows(count: Int): DoubleArray = DoubleArray(count) { i -> if(count == 1) menuTop else menuTop + (menuBottom - menuTop) * i / (count - 1) }
+}
 object PlayerSnap {
     // Physical-TV-confirmed targets. Do not expose speculative positions beyond
     // the last responsive-layout control: they become selectable blank space.

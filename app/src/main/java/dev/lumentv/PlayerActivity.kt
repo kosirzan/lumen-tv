@@ -67,6 +67,12 @@ class PlayerActivity : Activity() {
     private var snapIndex = 0
     private var popupOwnerIndex = 3
     private var autoEmbeddedStarted = false
+    private var calibration: PlayerCalibration? = null
+    private var calibrating = false
+    private var calibrationStep = 0
+    private val calibrationPoints = mutableListOf<CalibratedPoint>()
+    private var calibrationMenuTop = CalibratedPoint(0.70,0.36)
+    private val calibrationLabels = listOf("Play","Volume","Captions","Settings","Cast","Picture-in-Picture","Fullscreen")
     private val bottomSnapX = PlayerSnap.bottomX
     private val keepMappedControlsAlive = Runnable { if(embeddedMode) sendPointerHover() }
     private val endMappedHover = Runnable { if(embeddedMode) { endPointerHover(); hideCssFocus() } }
@@ -108,6 +114,7 @@ class PlayerActivity : Activity() {
         seconds = state?.getDouble("seconds") ?: item?.seconds ?: 0.0
         duration = state?.getDouble("duration") ?: item?.duration ?: 0.0
         provider = Store(this).provider
+        calibration = Store(this).playerCalibration()
         val root = FrameLayout(this).apply { setBackgroundColor(Color.BLACK) }
         surface = FrameLayout(this).apply { descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS }; root.addView(surface,FrameLayout.LayoutParams(-1,-1))
         status = Ui.text(this,if(demo) "Offline playback diagnostic" else item!!.label,15f).apply { setBackgroundColor(0xCC000000.toInt()); setPadding(Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,10),Ui.dp(this@PlayerActivity,24),Ui.dp(this@PlayerActivity,10)) }
@@ -121,6 +128,7 @@ class PlayerActivity : Activity() {
             controls.addView(playerButton("Source") { chooseProvider() })
             controls.addView(playerButton("Subtitles") { chooseSubtitle() })
             controls.addView(playerButton("Framex controls") { enterEmbeddedMode() })
+            controls.addView(playerButton("Calibrate") { startCalibration() })
         }
         controls.addView(playerButton("Retry") { retry() })
         controls.addView(playerButton("Diagnostics") { diagnostics() })
@@ -270,10 +278,15 @@ class PlayerActivity : Activity() {
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         w.isFocusable = true; w.isFocusableInTouchMode = true; w.requestFocus()
         snapZone = 0; snapIndex = 0; popupOwnerIndex = 3
-        applySnapPosition(); showMappedControls()
+        if(calibration == null) {
+            status.visibility = View.VISIBLE
+            status.text = "Player layout is settling · calibration will start shortly"
+            handler.postDelayed({ if(active && embeddedMode && calibration == null) startCalibration() },6000)
+        } else { applySnapPosition(); showMappedControls() }
         Toast.makeText(this,"FramexTV controls · arrows navigate · OK selects · Menu opens Lumen controls",Toast.LENGTH_LONG).show()
     }
     private fun exitEmbeddedMode() {
+        calibrating = false
         embeddedMode = false
         handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover)
         endPointerHover()
@@ -294,15 +307,67 @@ class PlayerActivity : Activity() {
     private fun applySnapPosition() {
         val w = web ?: return
         when(snapZone) {
-            0 -> { cursorX = (w.width * bottomSnapX[snapIndex]).toFloat(); cursorY = w.height * 0.958f }
+            0 -> calibration?.bottom?.getOrNull(snapIndex)?.let { cursorX = (w.width * it.x).toFloat(); cursorY = (w.height * it.y).toFloat() }
+                ?: run { cursorX = (w.width * bottomSnapX[snapIndex.coerceAtMost(bottomSnapX.lastIndex)]).toFloat(); cursorY = w.height * 0.958f }
             1 -> {
                 val ratio = if(duration > 0) (seconds / duration).coerceIn(0.02,0.98) else (cursorX / w.width.coerceAtLeast(1)).coerceIn(0.02f,0.98f).toDouble()
                 cursorX = (w.width * ratio).toFloat(); cursorY = w.height * 0.920f
             }
-            else -> { cursorX = w.width * 0.70f; cursorY = (w.height * activeMenuY()[snapIndex]).toFloat() }
+            else -> { cursorX = (w.width * (calibration?.menuX ?: 0.70)).toFloat(); cursorY = (w.height * activeMenuY()[snapIndex]).toFloat() }
         }
     }
-    private fun activeMenuY(): DoubleArray = if(popupOwnerIndex == 2) PlayerSnap.captionsY else PlayerSnap.settingsY
+    private fun activeMenuY(): DoubleArray = calibration?.menuRows(if(popupOwnerIndex == 2) 8 else 7)
+        ?: if(popupOwnerIndex == 2) PlayerSnap.captionsY else PlayerSnap.settingsY
+    private fun startCalibration() {
+        val w = web ?: return
+        embeddedMode = true; calibrating = true; calibrationStep = 0; calibrationPoints.clear()
+        handler.removeCallbacks(hideControls); setControlsVisible(false)
+        surface.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
+        w.isFocusable = true; w.isFocusableInTouchMode = true; w.requestFocus()
+        cursorX = w.width * 0.04f; cursorY = w.height * 0.94f; snapZone = 0
+        showCalibrationStep()
+    }
+    private fun showCalibrationStep() {
+        status.visibility = View.VISIBLE
+        status.text = if(calibrationStep < calibrationLabels.size) "Calibrate ${calibrationLabels[calibrationStep]} · arrows place glow · OK saves · Back cancels"
+            else if(calibrationStep == calibrationLabels.size) "Calibrate Quality row · arrows place glow · OK saves · Back cancels"
+            else "Calibrate Autoplay Next row · arrows place glow · OK saves · Back cancels"
+        showMappedControls()
+    }
+    private fun moveCalibration(dx: Int,dy: Int) {
+        val w = web ?: return
+        cursorX = (cursorX + dx * w.width * 0.008f).coerceIn(0f,w.width.toFloat())
+        cursorY = (cursorY + dy * w.height * 0.012f).coerceIn(0f,w.height.toFloat())
+        showCalibrationStep()
+    }
+    private fun saveCalibrationStep() {
+        val w = web ?: return
+        val point = CalibratedPoint((cursorX / w.width.coerceAtLeast(1)).toDouble(),(cursorY / w.height.coerceAtLeast(1)).toDouble())
+        if(calibrationStep < calibrationLabels.size) {
+            calibrationPoints.add(point); calibrationStep++
+            if(calibrationStep < calibrationLabels.size) {
+                val guess = listOf(0.10,0.72,0.78,0.84,0.90,0.96)[calibrationStep - 1]
+                cursorX = (w.width * guess).toFloat(); cursorY = w.height * point.y.toFloat()
+            } else {
+                val settings = calibrationPoints[3]
+                cursorX = (w.width * settings.x).toFloat(); cursorY = (w.height * settings.y).toFloat(); clickPointer()
+                snapZone = 2; cursorX = w.width * 0.70f; cursorY = w.height * 0.36f
+                handler.postDelayed({ if(calibrating) showCalibrationStep() },700)
+                return
+            }
+        } else if(calibrationStep == calibrationLabels.size) {
+            calibrationMenuTop = point; calibrationStep++; cursorX = (w.width * point.x).toFloat(); cursorY = w.height * 0.76f
+        } else {
+            val learned = PlayerCalibration(calibrationPoints.toList(),calibrationMenuTop.x,calibrationMenuTop.y,point.y)
+            if(learned.valid) {
+                Store(this).savePlayerCalibration(learned); calibration = learned; calibrating = false
+                status.text = "Player controls calibrated for this TV"; handler.postDelayed({ if(embeddedMode) status.visibility = View.GONE },2500)
+                snapZone = 0; snapIndex = 0; applySnapPosition(); showMappedControls(); return
+            }
+            Toast.makeText(this,"Calibration positions were invalid. Please try again.",Toast.LENGTH_LONG).show(); startCalibration(); return
+        }
+        showCalibrationStep()
+    }
     private fun showCssFocus() {
         val w = web ?: return
         val x = cursorX / w.width.coerceAtLeast(1)
@@ -312,7 +377,7 @@ class PlayerActivity : Activity() {
     }
     private fun hideCssFocus() { web?.evaluateJavascript("window.hideLumenFocus&&window.hideLumenFocus()",null) }
     private fun snapHorizontal(direction: Int) {
-        if(snapZone == 0) snapIndex = PlayerSnap.move(snapIndex,direction,bottomSnapX.lastIndex)
+        if(snapZone == 0) snapIndex = PlayerSnap.move(snapIndex,direction,calibration?.bottom?.lastIndex ?: bottomSnapX.lastIndex)
         else if(snapZone == 1) {
             if(duration > 0) seekTo(seconds + direction * 30.0)
             else {
@@ -321,7 +386,7 @@ class PlayerActivity : Activity() {
                 clickPointer(); showMappedControls(); return
             }
         } else if(direction < 0) {
-            clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex
+            clickBottomControl(popupOwnerIndex); snapZone = 0; snapIndex = popupOwnerIndex
         }
         applySnapPosition(); showMappedControls()
     }
@@ -339,6 +404,10 @@ class PlayerActivity : Activity() {
             popupOwnerIndex = snapIndex; snapZone = 2; snapIndex = 0; applySnapPosition()
         }
         showMappedControls()
+    }
+    private fun clickBottomControl(index: Int) {
+        calibration?.bottom?.getOrNull(index)?.let { clickAtNormalized(it.x,it.y) }
+            ?: clickAtNormalized(bottomSnapX[index.coerceAtMost(bottomSnapX.lastIndex)],0.958)
     }
     private fun pointerEvent(action: Int, downTime: Long = SystemClock.uptimeMillis()): MotionEvent =
         MotionEvent.obtain(downTime,SystemClock.uptimeMillis(),action,cursorX,cursorY,0).apply { source = InputDevice.SOURCE_MOUSE }
@@ -415,10 +484,22 @@ class PlayerActivity : Activity() {
         }
         if(::playButton.isInitialized && event.action == KeyEvent.ACTION_DOWN) {
             if(embeddedMode) {
+                if(calibrating) {
+                    if(event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_MENU) { calibrating = false; consumeEmbeddedExitKeyUp = true; exitEmbeddedMode(); return true }
+                    when(event.keyCode) {
+                        KeyEvent.KEYCODE_DPAD_LEFT -> moveCalibration(-1,0)
+                        KeyEvent.KEYCODE_DPAD_RIGHT -> moveCalibration(1,0)
+                        KeyEvent.KEYCODE_DPAD_UP -> moveCalibration(0,-1)
+                        KeyEvent.KEYCODE_DPAD_DOWN -> moveCalibration(0,1)
+                        KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> saveCalibrationStep()
+                        else -> return true
+                    }
+                    return true
+                }
                 if(event.keyCode == KeyEvent.KEYCODE_MENU) { consumeEmbeddedExitKeyUp = true; exitEmbeddedMode(); return true }
                 if(event.keyCode == KeyEvent.KEYCODE_BACK) {
                     consumeEmbeddedExitKeyUp = true
-                    if(snapZone == 2) { clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex; applySnapPosition(); showMappedControls() } else exitEmbeddedMode()
+                    if(snapZone == 2) { clickBottomControl(popupOwnerIndex); snapZone = 0; snapIndex = popupOwnerIndex; applySnapPosition(); showMappedControls() } else exitEmbeddedMode()
                     return true
                 }
                 when(event.keyCode) {

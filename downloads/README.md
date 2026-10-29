@@ -1,14 +1,14 @@
 # Downloads
 
-[Download APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.10.0-debug.apk)
+[Download APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.11.0-debug.apk)
 
 Direct raw URL for a television browser:
 
-https://raw.githubusercontent.com/kosirzan/lumen-tv/main/downloads/Lumen-TV-0.10.0-debug.apk
+https://raw.githubusercontent.com/kosirzan/lumen-tv/main/downloads/Lumen-TV-0.11.0-debug.apk
 
 This is a debug-signed test build (Android 6.0+), not a verified end-to-end
-streaming release. Version 0.10.0 combines FramexTV's own hover with a CSS-space
-focus halo and removes physical-TV-confirmed blank targets. Physical-TV
+streaming release. Version 0.11.0 learns the real responsive FramexTV control
+positions through a one-time guided TV calibration. Physical-TV
 playback checks remain.
 See ../docs/TESTING.md, ../docs/INSTALL.md and SHA256SUMS.txt.
 
