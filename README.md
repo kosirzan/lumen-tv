@@ -10,13 +10,13 @@ and video content have separate licences. This app does not grant video rights.
 
 ## Download
 
-- [Download Lumen TV 0.7.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.7.0-debug.apk)
+- [Download Lumen TV 0.8.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.8.0-debug.apk)
 - [Installation instructions](docs/INSTALL.md)
 - [Testing results and remaining checks](docs/TESTING.md)
 
-The APK is a debug-signed testing build. Version 0.7.0 maps the complete FramexTV
-bottom bar and longer popup lists, with a five-second translucent native-style
-focus highlight. Lumen's overlay remains available with Menu. Live playback on
+The APK is a debug-signed testing build. Version 0.8.0 maps the complete FramexTV
+bottom bar and longer popup lists using FramexTV's own hover feedback, without a
+separate yellow Lumen highlight. Lumen's overlay remains available with Menu. Live playback on
 the physical Philips TV still requires device verification. See `downloads/SHA256SUMS.txt` to
 verify the file. If the TV browser cannot follow GitHub's redirect, use the raw
 URL linked in `downloads/README.md`.

@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.7.0
+# Testing status — Lumen TV 0.8.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -9,7 +9,7 @@
 | Kotlin / Android SDK debug build | PASS |
 | Minimum SDK in compiled APK | 23 (Android 6.0) |
 | Target / compile SDK | 35 |
-| JVM unit tests | 13 passed, 0 failed |
+| JVM unit tests | 14 passed, 0 failed |
 | Android lint | 0 errors, 28 warnings |
 | APK signature | Verified; v1 and v2 signatures present |
 | Installation on Android 6 emulator | PASS |
@@ -114,20 +114,25 @@ targets, expands popup coverage to eleven rows, and replaces the circle with a
 control-sized translucent focus highlight. Both the highlight and FramexTV bar
 are kept visible for five seconds after the last mapped remote action.
 
+Version 0.8.0 removes that translucent Lumen highlight after physical-TV photos
+showed FramexTV's native lighter hover state underneath it. The mapped input now
+sends browser hover enter, move and exit events, leaving all focus styling to
+FramexTV. Hover is refreshed at two seconds and ends after five seconds.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.7.0-debug.apk`
+- Filename: `Lumen-TV-0.8.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.7.0` / versionCode `7`
-- Size: 7,644,826 bytes
-- SHA-256: `38d81bb7c374cb2a3dc9970dfdca50267e583ebb8e9230233b2f3eec7fd4368f`
+- Version: `0.8.0` / versionCode `8`
+- Size: 7,644,082 bytes
+- SHA-256: `7a689ce2e1ffc3a23f74e05fcc4d0ee08854ea131398cd9b099ea8816c4548d1`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.7.0 APK has the same signing certificate as 0.2.0–0.6.0 and can update them in
+The 0.8.0 APK has the same signing certificate as 0.2.0–0.7.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -136,5 +141,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.7.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.8.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

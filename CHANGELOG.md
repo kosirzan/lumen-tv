@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.8.0 — 2026-10-29
+
+- Remove Lumen's yellow focus rectangle after physical-TV photos confirmed that
+  it obscured FramexTV's own lighter native hover state.
+- Send a complete mouse hover enter/move/exit lifecycle through Android WebView,
+  allowing FramexTV itself to style the mapped button or menu row.
+- Retain the five-second interaction window: refresh hover after two seconds and
+  end it after five seconds so FramexTV can hide its controls naturally.
+
 ## 0.7.0 — 2026-10-29
 
 - Map every visible FramexTV bottom action: Play, Volume, Captions, Settings,

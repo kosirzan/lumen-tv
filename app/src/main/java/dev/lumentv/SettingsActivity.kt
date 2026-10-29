@@ -17,7 +17,7 @@ class SettingsActivity : Activity() {
         super.onCreate(state); Ui.setup(this)
         val store = Store(this); val root = Ui.column(this)
         root.addView(Ui.text(this,"Make yourself at home.",28f))
-        root.addView(Ui.text(this,"Lumen TV · 0.7.0 · Android ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})",15f))
+        root.addView(Ui.text(this,"Lumen TV · 0.8.0 · Android ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})",15f))
         val key = Ui.button(this,if(store.token.isBlank()) "Add TMDB key" else "Replace TMDB key") {
             val field = EditText(this).apply { hint = "TMDB API Read Access Token or v3 API key"; setSingleLine(); inputType = 129 }
             AlertDialog.Builder(this).setTitle("TMDB key").setMessage("Create a free personal key at themoviedb.org/settings/api. Stored privately on this TV. Never included in diagnostics.").setView(field)

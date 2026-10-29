@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -37,7 +36,6 @@ class PlayerActivity : Activity() {
     private lateinit var controlsPanel: LinearLayout
     private lateinit var seekBar: SeekBar
     private lateinit var timeLabel: TextView
-    private lateinit var cursorView: TextView
     private val handler = Handler(Looper.getMainLooper())
     private var paused = false
     private var active = false
@@ -64,6 +62,7 @@ class PlayerActivity : Activity() {
     private var telemetryMessages = 0L
     private var cursorX = 0f
     private var cursorY = 0f
+    private var hoverActive = false
     private var snapZone = 0 // 0 bottom controls, 1 timeline, 2 popup menu
     private var snapIndex = 0
     private var popupOwnerIndex = 3
@@ -71,7 +70,7 @@ class PlayerActivity : Activity() {
     private val bottomSnapX = PlayerSnap.bottomX // play, volume, captions, settings, cast, PiP, fullscreen
     private val menuSnapY = PlayerSnap.menuY
     private val keepMappedControlsAlive = Runnable { if(embeddedMode) sendPointerHover() }
-    private val hideMappedFocus = Runnable { if(embeddedMode) cursorView.visibility = View.GONE }
+    private val endMappedHover = Runnable { if(embeddedMode) endPointerHover() }
     private val hideControls = Runnable { setControlsVisible(false) }
     private val tick = object : Runnable {
         override fun run() {
@@ -147,12 +146,6 @@ class PlayerActivity : Activity() {
             addView(HorizontalScrollView(this@PlayerActivity).apply { isFocusable = false; addView(controls) })
         }
         root.addView(controlsPanel,FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM))
-        cursorView = TextView(this).apply {
-            text = ""; gravity = Gravity.CENTER
-            background = GradientDrawable().apply { shape = GradientDrawable.RECTANGLE; cornerRadius = Ui.dp(this@PlayerActivity,8).toFloat(); setColor(0x55FFD54F); setStroke(Ui.dp(this@PlayerActivity,2),0xFFFFD54F.toInt()) }
-            visibility = View.GONE; isFocusable = false; isClickable = false
-        }
-        root.addView(cursorView,FrameLayout.LayoutParams(Ui.dp(this,52),Ui.dp(this,46)))
         setContentView(root)
         started = SystemClock.elapsedRealtime()
         if(demo) setupNative() else setupWeb()
@@ -278,41 +271,24 @@ class PlayerActivity : Activity() {
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         w.isFocusable = true; w.isFocusableInTouchMode = true; w.requestFocus()
         snapZone = 0; snapIndex = 0; popupOwnerIndex = 3
-        applySnapPosition(); showMappedFocus()
+        applySnapPosition(); showMappedControls()
         Toast.makeText(this,"FramexTV controls · arrows navigate · OK selects · Menu opens Lumen controls",Toast.LENGTH_LONG).show()
     }
     private fun exitEmbeddedMode() {
         embeddedMode = false
-        handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(hideMappedFocus)
-        cursorView.visibility = View.GONE
+        handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover)
+        endPointerHover()
         web?.let { it.isFocusable = false; it.isFocusableInTouchMode = false }
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS
         showControls(); scheduleControlsHide()
     }
-    private fun positionCursor() {
-        val w = web ?: return
-        val width = when(snapZone) {
-            1 -> (w.width * 0.055f).toInt().coerceAtLeast(Ui.dp(this,54))
-            2 -> (w.width * 0.25f).toInt().coerceAtLeast(Ui.dp(this,180))
-            else -> (w.width * 0.040f).toInt().coerceAtLeast(Ui.dp(this,48))
-        }
-        val height = when(snapZone) {
-            1 -> (w.height * 0.045f).toInt().coerceAtLeast(Ui.dp(this,26))
-            2 -> (w.height * 0.065f).toInt().coerceAtLeast(Ui.dp(this,42))
-            else -> (w.height * 0.070f).toInt().coerceAtLeast(Ui.dp(this,44))
-        }
-        cursorView.layoutParams = (cursorView.layoutParams as FrameLayout.LayoutParams).apply { this.width = width; this.height = height }
-        cursorView.x = cursorX - width / 2f
-        cursorView.y = cursorY - height / 2f
-    }
-    private fun showMappedFocus() {
-        handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(hideMappedFocus)
-        cursorView.visibility = View.VISIBLE
+    private fun showMappedControls() {
+        handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover)
         sendPointerHover()
         // FramexTV currently hides after about three seconds. A second hover at
-        // two seconds keeps its bar present until our five-second focus timeout.
+        // two seconds keeps its bar present until our five-second hover timeout.
         handler.postDelayed(keepMappedControlsAlive,2000)
-        handler.postDelayed(hideMappedFocus,5000)
+        handler.postDelayed(endMappedHover,5000)
     }
     private fun applySnapPosition() {
         val w = web ?: return
@@ -324,7 +300,6 @@ class PlayerActivity : Activity() {
             }
             else -> { cursorX = w.width * 0.84f; cursorY = (w.height * menuSnapY[snapIndex]).toFloat() }
         }
-        positionCursor(); sendPointerHover()
     }
     private fun snapHorizontal(direction: Int) {
         if(snapZone == 0) snapIndex = PlayerSnap.move(snapIndex,direction,bottomSnapX.lastIndex)
@@ -333,12 +308,12 @@ class PlayerActivity : Activity() {
             else {
                 val w = web ?: return
                 cursorX = (cursorX + direction * w.width * 0.04f).coerceIn(w.width * 0.02f,w.width * 0.98f)
-                positionCursor(); clickPointer(); showMappedFocus(); return
+                clickPointer(); showMappedControls(); return
             }
         } else if(direction < 0) {
             clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex
         }
-        applySnapPosition(); showMappedFocus()
+        applySnapPosition(); showMappedControls()
     }
     private fun snapVertical(direction: Int) {
         when(snapZone) {
@@ -346,18 +321,29 @@ class PlayerActivity : Activity() {
             1 -> if(direction > 0) { snapZone = 0; snapIndex = 0 }
             else -> snapIndex = PlayerSnap.move(snapIndex,direction,menuSnapY.lastIndex)
         }
-        applySnapPosition(); showMappedFocus()
+        applySnapPosition(); showMappedControls()
     }
     private fun selectSnap() {
         clickPointer()
         if(snapZone == 0 && (snapIndex == 2 || snapIndex == 3)) {
             popupOwnerIndex = snapIndex; snapZone = 2; snapIndex = menuSnapY.lastIndex; applySnapPosition()
         }
-        showMappedFocus()
+        showMappedControls()
     }
     private fun pointerEvent(action: Int, downTime: Long = SystemClock.uptimeMillis()): MotionEvent =
         MotionEvent.obtain(downTime,SystemClock.uptimeMillis(),action,cursorX,cursorY,0).apply { source = InputDevice.SOURCE_MOUSE }
-    private fun sendPointerHover() { web?.dispatchGenericMotionEvent(pointerEvent(MotionEvent.ACTION_HOVER_MOVE)) }
+    private fun sendPointerHover() {
+        val w = web ?: return
+        if(!hoverActive) {
+            w.dispatchGenericMotionEvent(pointerEvent(MotionEvent.ACTION_HOVER_ENTER))
+            hoverActive = true
+        }
+        w.dispatchGenericMotionEvent(pointerEvent(MotionEvent.ACTION_HOVER_MOVE))
+    }
+    private fun endPointerHover() {
+        if(hoverActive) web?.dispatchGenericMotionEvent(pointerEvent(MotionEvent.ACTION_HOVER_EXIT))
+        hoverActive = false
+    }
     private fun clickPointer() {
         val w = web ?: return
         val down = SystemClock.uptimeMillis()
@@ -422,7 +408,7 @@ class PlayerActivity : Activity() {
                 if(event.keyCode == KeyEvent.KEYCODE_MENU) { consumeEmbeddedExitKeyUp = true; exitEmbeddedMode(); return true }
                 if(event.keyCode == KeyEvent.KEYCODE_BACK) {
                     consumeEmbeddedExitKeyUp = true
-                    if(snapZone == 2) { clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex; applySnapPosition(); showMappedFocus() } else exitEmbeddedMode()
+                    if(snapZone == 2) { clickAtNormalized(bottomSnapX[popupOwnerIndex],0.958); snapZone = 0; snapIndex = popupOwnerIndex; applySnapPosition(); showMappedControls() } else exitEmbeddedMode()
                     return true
                 }
                 when(event.keyCode) {
@@ -455,7 +441,7 @@ class PlayerActivity : Activity() {
         return super.dispatchKeyEvent(event)
     }
     override fun onResume() { super.onResume(); active = true; if(::playButton.isInitialized) { if(!demo && web == null && error == "None") { telemetrySequence = 0; started = SystemClock.elapsedRealtime(); setupWeb() }; web?.onResume(); native?.playWhenReady = !paused; if(!paused) command(JSONObject().put("action","play")); handler.post(tick); showControls(); scheduleControlsHide() } }
-    override fun onPause() { active = false; embeddedMode = false; if(::cursorView.isInitialized) cursorView.visibility = View.GONE; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(hideMappedFocus); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
+    override fun onPause() { active = false; embeddedMode = false; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover); endPointerHover(); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
     override fun onSaveInstanceState(outState: Bundle) { outState.putDouble("seconds",seconds); outState.putDouble("duration",duration); super.onSaveInstanceState(outState) }
     private fun release() { native?.release(); native = null; web?.let { surface.removeView(it); it.stopLoading(); it.loadUrl("about:blank"); it.destroy() }; web = null }
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); if(::surface.isInitialized) release(); super.onDestroy() }
