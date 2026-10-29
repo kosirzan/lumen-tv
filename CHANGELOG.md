@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.0 — 2026-10-29
+
+- Replace Player UI keyboard forwarding with a visible remote-controlled cursor:
+  D-pad moves a real browser pointer and OK sends a real click to FramexTV.
+- Send hover movement while the cursor moves so FramexTV can reveal its normally
+  pointer-triggered control bar. Back or Menu returns to Lumen controls.
+- Continue cancelling every invalid TLS request, but record provider-resource
+  certificate failures in Diagnostics instead of permanently covering otherwise
+  working playback with a fatal-looking banner.
+- Preserve the package and signing identity for an in-place update from 0.2.0+.
+
 ## 0.4.0 — 2026-10-29
 
 - Stop replacing the title with an alarming warning when optional FramexTV

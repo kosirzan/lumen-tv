@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -12,6 +13,8 @@ import android.os.SystemClock
 import android.os.Build
 import android.view.KeyEvent
 import android.view.Gravity
+import android.view.InputDevice
+import android.view.MotionEvent
 import android.view.View
 import android.webkit.*
 import android.widget.*
@@ -34,6 +37,7 @@ class PlayerActivity : Activity() {
     private lateinit var controlsPanel: LinearLayout
     private lateinit var seekBar: SeekBar
     private lateinit var timeLabel: TextView
+    private lateinit var cursorView: TextView
     private val handler = Handler(Looper.getMainLooper())
     private var paused = false
     private var active = false
@@ -51,12 +55,15 @@ class PlayerActivity : Activity() {
     private var initialFocus = false
     private var frameRequests = 0
     private var frameHttpError = "None"
+    private var tlsError = "None"
     private var consoleErrors = 0
     private var renderProcessLost = false
     private var controlsVisible = true
     private var embeddedMode = false
     private var consumeEmbeddedExitKeyUp = false
     private var telemetryMessages = 0L
+    private var cursorX = 0f
+    private var cursorY = 0f
     private val hideControls = Runnable { setControlsVisible(false) }
     private val tick = object : Runnable {
         override fun run() {
@@ -132,6 +139,13 @@ class PlayerActivity : Activity() {
             addView(HorizontalScrollView(this@PlayerActivity).apply { isFocusable = false; addView(controls) })
         }
         root.addView(controlsPanel,FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM))
+        cursorView = TextView(this).apply {
+            text = "●"; textSize = 18f; gravity = Gravity.CENTER; setTextColor(Color.BLACK)
+            background = GradientDrawable().apply { shape = GradientDrawable.OVAL; setColor(0xFFFFD54F.toInt()); setStroke(Ui.dp(this@PlayerActivity,2),Color.WHITE) }
+            visibility = View.GONE; isFocusable = false; isClickable = false
+        }
+        val cursorSize = Ui.dp(this,34)
+        root.addView(cursorView,FrameLayout.LayoutParams(cursorSize,cursorSize))
         setContentView(root)
         started = SystemClock.elapsedRealtime()
         if(demo) setupNative() else setupWeb()
@@ -205,7 +219,13 @@ class PlayerActivity : Activity() {
                 override fun onReceivedHttpError(view: WebView, request: WebResourceRequest, response: WebResourceResponse) {
                     if(request.url.host in Framex.allowedHosts) { frameHttpError = "HTTP ${response.statusCode}" }
                 }
-                override fun onReceivedSslError(view: WebView, ssl: android.webkit.SslErrorHandler, e: android.net.http.SslError) { ssl.cancel(); error = "TLS certificate validation failed"; status.text = "Secure connection failed. Check the TV date/time."; showControls() }
+                override fun onReceivedSslError(view: WebView, ssl: android.webkit.SslErrorHandler, e: android.net.http.SslError) {
+                    // Never bypass certificate validation. A failed optional provider
+                    // resource must not obscure video that is already playing.
+                    ssl.cancel()
+                    val host = runCatching { Uri.parse(e.url).host }.getOrNull() ?: "unknown host"
+                    tlsError = "Certificate error ${e.primaryError} · $host"
+                }
                 @android.annotation.TargetApi(Build.VERSION_CODES.O)
                 override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
                     renderProcessLost = true
@@ -243,14 +263,35 @@ class PlayerActivity : Activity() {
         setControlsVisible(false)
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         w.isFocusable = true; w.isFocusableInTouchMode = true; w.requestFocus()
-        w.evaluateJavascript("window.focusFramex && window.focusFramex()",null)
-        Toast.makeText(this,"FramexTV controls active · press Back or Menu to return to Lumen controls",Toast.LENGTH_LONG).show()
+        cursorX = (w.width / 2f).coerceAtLeast(1f); cursorY = (w.height / 2f).coerceAtLeast(1f)
+        cursorView.visibility = View.VISIBLE; positionCursor(); sendPointerHover()
+        Toast.makeText(this,"FramexTV cursor · D-pad moves · OK clicks · Back or Menu returns",Toast.LENGTH_LONG).show()
     }
     private fun exitEmbeddedMode() {
         embeddedMode = false
+        cursorView.visibility = View.GONE
         web?.let { it.isFocusable = false; it.isFocusableInTouchMode = false }
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS
         showControls(); scheduleControlsHide()
+    }
+    private fun positionCursor() {
+        cursorView.x = cursorX - cursorView.width.coerceAtLeast(Ui.dp(this,34)) / 2f
+        cursorView.y = cursorY - cursorView.height.coerceAtLeast(Ui.dp(this,34)) / 2f
+    }
+    private fun moveCursor(dx: Float, dy: Float) {
+        val w = web ?: return
+        cursorX = (cursorX + dx).coerceIn(0f,w.width.coerceAtLeast(1).toFloat())
+        cursorY = (cursorY + dy).coerceIn(0f,w.height.coerceAtLeast(1).toFloat())
+        positionCursor(); sendPointerHover()
+    }
+    private fun pointerEvent(action: Int, downTime: Long = SystemClock.uptimeMillis()): MotionEvent =
+        MotionEvent.obtain(downTime,SystemClock.uptimeMillis(),action,cursorX,cursorY,0).apply { source = InputDevice.SOURCE_MOUSE }
+    private fun sendPointerHover() { web?.dispatchGenericMotionEvent(pointerEvent(MotionEvent.ACTION_HOVER_MOVE)) }
+    private fun clickPointer() {
+        val w = web ?: return
+        val down = SystemClock.uptimeMillis()
+        w.dispatchTouchEvent(pointerEvent(MotionEvent.ACTION_DOWN,down))
+        w.dispatchTouchEvent(pointerEvent(MotionEvent.ACTION_UP,down))
     }
     private fun chooseProvider() {
         handler.removeCallbacks(hideControls)
@@ -282,11 +323,11 @@ class PlayerActivity : Activity() {
     }
     private fun format(value: Double): String { val s = value.toLong().coerceAtLeast(0); return "%d:%02d:%02d".format(s / 3600, s / 60 % 60, s % 60) }
     private fun save() { if(!demo) playback?.let { Store(this).save(it.copy(seconds=seconds,duration=duration)) } }
-    private fun retry() { save(); release(); surface.removeAllViews(); error = "None"; frameHttpError = "None"; frameRequests = 0; consoleErrors = 0; renderProcessLost = false; pendingPoll = false; lastTelemetry = 0; telemetrySequence = 0; telemetryMessages = 0; started = SystemClock.elapsedRealtime(); paused = false; muted = false; playButton.text = "Pause"; if(demo) setupNative() else setupWeb(); if(active) { handler.removeCallbacks(tick); handler.post(tick) } }
+    private fun retry() { save(); release(); surface.removeAllViews(); error = "None"; frameHttpError = "None"; tlsError = "None"; frameRequests = 0; consoleErrors = 0; renderProcessLost = false; pendingPoll = false; lastTelemetry = 0; telemetrySequence = 0; telemetryMessages = 0; started = SystemClock.elapsedRealtime(); paused = false; muted = false; playButton.text = "Pause"; if(demo) setupNative() else setupWeb(); if(active) { handler.removeCallbacks(tick); handler.post(tick) } }
     private fun diagnostics() {
         val memory = android.app.ActivityManager.MemoryInfo(); (getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager).getMemoryInfo(memory)
         val age = if(lastTelemetry == 0L) "None" else "${(SystemClock.elapsedRealtime() - lastTelemetry) / 1000}s ago"
-        val text = "Mode: ${if(demo) "Bundled H.264/AAC clip · native Media3" else "FramexTV documented iframe"}\nAndroid: ${android.os.Build.VERSION.RELEASE} / API ${android.os.Build.VERSION.SDK_INT}\nWebView Chrome: $webVersion\nEmbed origin: ${Framex.ORIGIN}\nProvider: $provider\nProgress: ${format(seconds)} / ${format(duration)}\nLast telemetry: $age\nAccepted progress messages: $telemetryMessages\nProvider resources seen: $frameRequests\nProvider HTTP error: $frameHttpError\nConsole errors (contents not retained): $consoleErrors\nRenderer lost: $renderProcessLost\nAvailable memory: ${memory.availMem / 1048576} MiB\nLow memory: ${memory.lowMemory}\nError: $error\n\nMissing progress telemetry does not mean playback failed; it only disables Lumen's exact timeline and Continue Watching updates. Relative seek and Player UI remain available. Provider commands have no documented acknowledgement. No video extraction or DRM bypass is performed."
+        val text = "Mode: ${if(demo) "Bundled H.264/AAC clip · native Media3" else "FramexTV documented iframe"}\nAndroid: ${android.os.Build.VERSION.RELEASE} / API ${android.os.Build.VERSION.SDK_INT}\nWebView Chrome: $webVersion\nEmbed origin: ${Framex.ORIGIN}\nProvider: $provider\nProgress: ${format(seconds)} / ${format(duration)}\nLast telemetry: $age\nAccepted progress messages: $telemetryMessages\nProvider resources seen: $frameRequests\nProvider HTTP error: $frameHttpError\nProvider TLS error: $tlsError\nConsole errors (contents not retained): $consoleErrors\nRenderer lost: $renderProcessLost\nAvailable memory: ${memory.availMem / 1048576} MiB\nLow memory: ${memory.lowMemory}\nError: $error\n\nTLS validation is never bypassed; failed resources are cancelled. Missing progress telemetry does not mean playback failed; it only disables Lumen's exact timeline and Continue Watching updates. Provider commands have no documented acknowledgement. No video extraction or DRM bypass is performed."
         AlertDialog.Builder(this).setTitle("Player diagnostics").setMessage(text).setPositiveButton("Close",null).show()
     }
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -304,7 +345,17 @@ class PlayerActivity : Activity() {
         if(::playButton.isInitialized && event.action == KeyEvent.ACTION_DOWN) {
             if(embeddedMode) {
                 if(event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_MENU) { consumeEmbeddedExitKeyUp = true; exitEmbeddedMode(); return true }
-                return super.dispatchKeyEvent(event)
+                val step = Ui.dp(this,42).toFloat()
+                when(event.keyCode) {
+                    KeyEvent.KEYCODE_DPAD_LEFT -> moveCursor(-step,0f)
+                    KeyEvent.KEYCODE_DPAD_RIGHT -> moveCursor(step,0f)
+                    KeyEvent.KEYCODE_DPAD_UP -> moveCursor(0f,-step)
+                    KeyEvent.KEYCODE_DPAD_DOWN -> moveCursor(0f,step)
+                    KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> clickPointer()
+                    KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> togglePause()
+                    else -> return super.dispatchKeyEvent(event)
+                }
+                return true
             }
             when(event.keyCode) {
                 KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE -> { togglePause(); return true }
@@ -325,7 +376,7 @@ class PlayerActivity : Activity() {
         return super.dispatchKeyEvent(event)
     }
     override fun onResume() { super.onResume(); active = true; if(::playButton.isInitialized) { if(!demo && web == null && error == "None") { telemetrySequence = 0; started = SystemClock.elapsedRealtime(); setupWeb() }; web?.onResume(); native?.playWhenReady = !paused; if(!paused) command(JSONObject().put("action","play")); handler.post(tick); showControls(); scheduleControlsHide() } }
-    override fun onPause() { active = false; embeddedMode = false; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
+    override fun onPause() { active = false; embeddedMode = false; if(::cursorView.isInitialized) cursorView.visibility = View.GONE; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
     override fun onSaveInstanceState(outState: Bundle) { outState.putDouble("seconds",seconds); outState.putDouble("duration",duration); super.onSaveInstanceState(outState) }
     private fun release() { native?.release(); native = null; web?.let { surface.removeView(it); it.stopLoading(); it.loadUrl("about:blank"); it.destroy() }; web = null }
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); if(::surface.isInitialized) release(); super.onDestroy() }
