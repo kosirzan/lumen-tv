@@ -31,8 +31,8 @@ URL linked in `downloads/README.md`.
 - Resume after 5 seconds; completion at 95% removes a position from Continue Watching.
 - Documented FramexTV movie/TV embeds and postMessage controls: play, pause,
   relative/exact seek, volume, provider and subtitle index.
-- Default mapped FramexTV navigation covering Play, Volume, Captions, Settings,
-  Cast, Picture-in-Picture, Fullscreen, timeline and popup rows; Menu opens Lumen's fallback controls.
+- Default mapped FramexTV navigation covering the five physical-TV-confirmed
+  responsive controls, timeline and popup rows; Menu opens Lumen's fallback controls.
 - Five-second auto-hiding player overlay; D-pad Left/Right seek and OK toggles
   playback when hidden. Any navigation key reveals the native controls.
 - Continue Watching menu with Resume, Start from beginning, Remove and Details.
