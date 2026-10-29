@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.8.0
+# Testing status — Lumen TV 0.9.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -119,20 +119,26 @@ showed FramexTV's native lighter hover state underneath it. The mapped input now
 sends browser hover enter, move and exit events, leaving all focus styling to
 FramexTV. Hover is refreshed at two seconds and ends after five seconds.
 
+Version 0.9.0 adds a smaller blue-white TV focus glow because physical testing
+showed that FramexTV's native hover alone is too subtle at viewing distance. It
+also recalibrates the five right-side buttons and replaces the generic eleven-row
+popup map with separate eight-row Captions and seven-row Settings maps. Exact
+alignment remains subject to future provider layout changes.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.8.0-debug.apk`
+- Filename: `Lumen-TV-0.9.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.8.0` / versionCode `8`
-- Size: 7,644,082 bytes
-- SHA-256: `7a689ce2e1ffc3a23f74e05fcc4d0ee08854ea131398cd9b099ea8816c4548d1`
+- Version: `0.9.0` / versionCode `9`
+- Size: 7,645,075 bytes
+- SHA-256: `664343f897bf4178912531ce46266115d6399d1452acc651496a648c44f230ec`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.8.0 APK has the same signing certificate as 0.2.0–0.7.0 and can update them in
+The 0.9.0 APK has the same signing certificate as 0.2.0–0.8.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -141,5 +147,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.8.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.9.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

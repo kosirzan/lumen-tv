@@ -18,11 +18,12 @@ class PlaybackTest {
     @Test fun resumeThresholds() { assertFalse(ProgressPolicy.resumable(4.9,1000.0)); assertTrue(ProgressPolicy.resumable(5.0,1000.0)); assertTrue(ProgressPolicy.resumable(949.0,1000.0)); assertFalse(ProgressPolicy.resumable(950.0,1000.0)) }
     @Test fun mappedPlayerFocusStaysInsideRows() {
         assertEquals(7,PlayerSnap.bottomX.size)
-        assertEquals(11,PlayerSnap.menuY.size)
+        assertEquals(8,PlayerSnap.captionsY.size)
+        assertEquals(7,PlayerSnap.settingsY.size)
         assertEquals(0,PlayerSnap.move(0,-1,PlayerSnap.bottomX.lastIndex))
         assertEquals(1,PlayerSnap.move(0,1,PlayerSnap.bottomX.lastIndex))
         assertEquals(PlayerSnap.bottomX.lastIndex,PlayerSnap.move(PlayerSnap.bottomX.lastIndex,1,PlayerSnap.bottomX.lastIndex))
-        assertEquals(PlayerSnap.menuY.lastIndex,PlayerSnap.move(PlayerSnap.menuY.lastIndex,1,PlayerSnap.menuY.lastIndex))
+        assertEquals(PlayerSnap.settingsY.lastIndex,PlayerSnap.move(PlayerSnap.settingsY.lastIndex,1,PlayerSnap.settingsY.lastIndex))
     }
     @Test(expected=IllegalArgumentException::class) fun invalidProviderCannotEnterUrl() { Framex.embed(Playback(movie),"x&evil=1") }
     @Test(expected=IllegalArgumentException::class) fun zeroEpisodeIsRejected() { Playback(tv,1,0) }

@@ -20,9 +20,11 @@ object ProgressPolicy {
 object PlayerSnap {
     // Current FramexTV bottom bar: play, volume, captions, settings, cast,
     // picture-in-picture and fullscreen. Coordinates are viewport ratios.
-    val bottomX = doubleArrayOf(0.024,0.052,0.858,0.888,0.918,0.947,0.976)
-    // Covers short settings panels and long subtitle/source lists.
-    val menuY = doubleArrayOf(0.22,0.28,0.34,0.40,0.46,0.52,0.58,0.64,0.70,0.76,0.82)
+    val bottomX = doubleArrayOf(0.024,0.052,0.715,0.773,0.830,0.883,0.940)
+    // The two popups have different row counts and vertical layouts. Keeping
+    // separate maps prevents focus from landing on blank space below Settings.
+    val captionsY = doubleArrayOf(0.34,0.40,0.46,0.52,0.58,0.64,0.70,0.76)
+    val settingsY = doubleArrayOf(0.36,0.42,0.48,0.54,0.60,0.66,0.72)
     fun move(index: Int, direction: Int, lastIndex: Int) = (index + direction).coerceIn(0,lastIndex)
 }
 object Framex {

@@ -5,7 +5,7 @@ to perform these steps automatically.
 
 ## USB installation
 
-1. Download `Lumen-TV-0.8.0-debug.apk` to a computer, then copy it to a USB drive.
+1. Download `Lumen-TV-0.9.0-debug.apk` to a computer, then copy it to a USB drive.
 2. On the TV, check Settings → About for its Android version (must be 6.0+).
 3. Open the USB APK with a trusted file manager already available on the TV.
    Philips' menu names vary with firmware. If required, temporarily permit
@@ -24,7 +24,7 @@ computer on the TV. Example for a TV offering network ADB:
 
 ```sh
 adb connect YOUR_TV_IP:5555
-adb install -r Lumen-TV-0.8.0-debug.apk
+adb install -r Lumen-TV-0.9.0-debug.apk
 adb shell monkey -p dev.lumentv -c android.intent.category.LEANBACK_LAUNCHER 1
 ```
 
@@ -43,7 +43,7 @@ Disable debugging after use. No root or DRM modification is needed.
 - Playback opens directly in mapped FramexTV navigation. Left/Right moves across
   Play, Captions, Settings and Fullscreen; Up focuses the timeline; OK selects.
   Menu opens Lumen's fallback controls.
-- Version 0.8.0 uses the same debug signature as 0.2.0–0.7.0 and installs over them while
+- Version 0.9.0 uses the same debug signature as 0.2.0–0.8.0 and installs over them while
   retaining the TMDB key, watchlist, progress and settings.
 
 ## Troubleshooting

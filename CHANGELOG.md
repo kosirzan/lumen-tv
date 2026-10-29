@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 — 2026-10-29
+
+- Add a compact high-contrast blue-white focus glow around the selected embedded
+  control or row while preserving FramexTV's native hover styling underneath.
+- Recalibrate Captions, Settings, Cast, Picture-in-Picture and Fullscreen targets
+  from the physical-TV layout so the two rightmost positions no longer hit gaps.
+- Give Captions and Settings separate popup maps; Settings now covers its seven
+  visible rows and starts on Quality rather than an empty bottom position.
+- Keep the stronger focus and provider controls visible for five seconds.
+
 ## 0.8.0 — 2026-10-29
 
 - Remove Lumen's yellow focus rectangle after physical-TV photos confirmed that
