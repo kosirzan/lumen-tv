@@ -10,13 +10,13 @@ and video content have separate licences. This app does not grant video rights.
 
 ## Download
 
-- [Download Lumen TV 0.9.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.9.0-debug.apk)
+- [Download Lumen TV 0.10.0 APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.10.0-debug.apk)
 - [Installation instructions](docs/INSTALL.md)
 - [Testing results and remaining checks](docs/TESTING.md)
 
-The APK is a debug-signed testing build. Version 0.9.0 adds a high-contrast
-blue-white TV focus glow around FramexTV's own hover state, corrects the shifted
-right-side controls, and removes blank Settings targets. Lumen's fallback overlay
+The APK is a debug-signed testing build. Version 0.10.0 renders its TV focus glow
+inside the same CSS viewport as FramexTV, preserves the provider's native hover,
+and removes responsive-layout positions confirmed as blank. Lumen's fallback overlay
 remains available with Menu. Live playback on
 the physical Philips TV still requires device verification. See `downloads/SHA256SUMS.txt` to
 verify the file. If the TV browser cannot follow GitHub's redirect, use the raw

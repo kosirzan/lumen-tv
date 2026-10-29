@@ -18,9 +18,9 @@ object ProgressPolicy {
     fun resumable(seconds: Double, duration: Double) = valid(seconds, duration) && seconds >= 5 && seconds / duration < 0.95
 }
 object PlayerSnap {
-    // Current FramexTV bottom bar: play, volume, captions, settings, cast,
-    // picture-in-picture and fullscreen. Coordinates are viewport ratios.
-    val bottomX = doubleArrayOf(0.024,0.052,0.715,0.773,0.830,0.883,0.940)
+    // Physical-TV-confirmed targets. Do not expose speculative positions beyond
+    // the last responsive-layout control: they become selectable blank space.
+    val bottomX = doubleArrayOf(0.024,0.052,0.858,0.888,0.918)
     // The two popups have different row counts and vertical layouts. Keeping
     // separate maps prevents focus from landing on blank space below Settings.
     val captionsY = doubleArrayOf(0.34,0.40,0.46,0.52,0.58,0.64,0.70,0.76)

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
-import android.graphics.drawable.GradientDrawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -37,7 +36,6 @@ class PlayerActivity : Activity() {
     private lateinit var controlsPanel: LinearLayout
     private lateinit var seekBar: SeekBar
     private lateinit var timeLabel: TextView
-    private lateinit var mappedFocusView: View
     private val handler = Handler(Looper.getMainLooper())
     private var paused = false
     private var active = false
@@ -69,9 +67,9 @@ class PlayerActivity : Activity() {
     private var snapIndex = 0
     private var popupOwnerIndex = 3
     private var autoEmbeddedStarted = false
-    private val bottomSnapX = PlayerSnap.bottomX // play, volume, captions, settings, cast, PiP, fullscreen
+    private val bottomSnapX = PlayerSnap.bottomX
     private val keepMappedControlsAlive = Runnable { if(embeddedMode) sendPointerHover() }
-    private val endMappedHover = Runnable { if(embeddedMode) { endPointerHover(); mappedFocusView.visibility = View.GONE } }
+    private val endMappedHover = Runnable { if(embeddedMode) { endPointerHover(); hideCssFocus() } }
     private val hideControls = Runnable { setControlsVisible(false) }
     private val tick = object : Runnable {
         override fun run() {
@@ -147,19 +145,6 @@ class PlayerActivity : Activity() {
             addView(HorizontalScrollView(this@PlayerActivity).apply { isFocusable = false; addView(controls) })
         }
         root.addView(controlsPanel,FrameLayout.LayoutParams(-1,-2,Gravity.BOTTOM))
-        mappedFocusView = View(this).apply {
-            background = GradientDrawable().apply {
-                shape = GradientDrawable.RECTANGLE
-                cornerRadius = Ui.dp(this@PlayerActivity,12).toFloat()
-                setColor(0x3342A5F5)
-                setStroke(Ui.dp(this@PlayerActivity,3),0xFFE3F2FD.toInt())
-            }
-            elevation = Ui.dp(this@PlayerActivity,18).toFloat()
-            visibility = View.GONE
-            isFocusable = false
-            isClickable = false
-        }
-        root.addView(mappedFocusView,FrameLayout.LayoutParams(Ui.dp(this,60),Ui.dp(this,54)))
         setContentView(root)
         started = SystemClock.elapsedRealtime()
         if(demo) setupNative() else setupWeb()
@@ -260,8 +245,8 @@ class PlayerActivity : Activity() {
             val p = playback!!.copy(seconds=seconds,duration=duration)
             val url = Framex.embed(p,provider,autoplay=!paused)
             // The host is ours, the iframe is cross-origin; no addJavascriptInterface is exposed.
-            val html = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src https://framextv.cc https://www.framextv.cc https://framextv.xyz https://www.framextv.xyz; script-src 'unsafe-inline'; style-src 'unsafe-inline'"><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#000;overflow:hidden}</style></head><body><iframe id="player" tabindex="0" src="$url" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe><script>
-            (function(){var f=document.getElementById('player'),origins=['https://framextv.cc','https://www.framextv.cc','https://framextv.xyz','https://www.framextv.xyz'];window.framexState={sequence:0,messages:0};window.sendFramex=function(c){for(var i=0;i<origins.length;i++)f.contentWindow.postMessage(c,origins[i]);};window.focusFramex=function(){f.focus();};window.addEventListener('message',function(e){if(origins.indexOf(e.origin)<0)return;var d=e.data;try{if(typeof d==='string')d=JSON.parse(d);}catch(_){return;}var eventName=d&&(d.event||d.type);if(d&&d.data&&typeof d.data==='object'){eventName=eventName||d.data.event||d.data.type;d=d.data;}if(!d||String(eventName||'').toLowerCase()!=='framextv:timeupdate')return;var time=Number(d.currentTime),length=Number(d.duration),seq=(window.framexState.sequence||0)+1,messages=(window.framexState.messages||0)+1;if(isFinite(time)&&isFinite(length)&&time>=0&&length>0)window.framexState={currentTime:time,duration:length,sequence:seq,messages:messages};});})();
+            val html = """<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; frame-src https://framextv.cc https://www.framextv.cc https://framextv.xyz https://www.framextv.xyz; script-src 'unsafe-inline'; style-src 'unsafe-inline'"><style>html,body,iframe{margin:0;width:100%;height:100%;border:0;background:#000;overflow:hidden}#lumenFocus{display:none;position:fixed;z-index:9;pointer-events:none;transform:translate(-50%,-50%) scale(1.08);box-sizing:border-box;background:rgba(66,165,245,.10);border:3px solid rgba(235,250,255,.95);box-shadow:0 0 8px 3px rgba(255,255,255,.65),0 0 22px 10px rgba(41,182,246,.85);animation:lumenPulse 1.1s ease-in-out infinite alternate}#lumenFocus.bottom{width:5.2vw;height:7.8vh;border-radius:50%}#lumenFocus.timeline{width:7vw;height:5vh;border-radius:999px}#lumenFocus.menu{width:30vw;height:6.7vh;border-radius:12px}@keyframes lumenPulse{from{opacity:.78}to{opacity:1}}</style></head><body><iframe id="player" tabindex="0" src="$url" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe><div id="lumenFocus"></div><script>
+            (function(){var f=document.getElementById('player'),focus=document.getElementById('lumenFocus'),origins=['https://framextv.cc','https://www.framextv.cc','https://framextv.xyz','https://www.framextv.xyz'];window.framexState={sequence:0,messages:0};window.sendFramex=function(c){for(var i=0;i<origins.length;i++)f.contentWindow.postMessage(c,origins[i]);};window.showLumenFocus=function(x,y,zone){focus.className=zone;focus.style.left=(x*100)+'%';focus.style.top=(y*100)+'%';focus.style.display='block';};window.hideLumenFocus=function(){focus.style.display='none';};window.focusFramex=function(){f.focus();};window.addEventListener('message',function(e){if(origins.indexOf(e.origin)<0)return;var d=e.data;try{if(typeof d==='string')d=JSON.parse(d);}catch(_){return;}var eventName=d&&(d.event||d.type);if(d&&d.data&&typeof d.data==='object'){eventName=eventName||d.data.event||d.data.type;d=d.data;}if(!d||String(eventName||'').toLowerCase()!=='framextv:timeupdate')return;var time=Number(d.currentTime),length=Number(d.duration),seq=(window.framexState.sequence||0)+1,messages=(window.framexState.messages||0)+1;if(isFinite(time)&&isFinite(length)&&time>=0&&length>0)window.framexState={currentTime:time,duration:length,sequence:seq,messages:messages};});})();
             </script></body></html>"""
             surface.addView(w,FrameLayout.LayoutParams(-1,-1))
             w.loadDataWithBaseURL("https://appassets.androidplatform.net/player/",html,"text/html","UTF-8",null)
@@ -292,15 +277,14 @@ class PlayerActivity : Activity() {
         embeddedMode = false
         handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover)
         endPointerHover()
-        mappedFocusView.visibility = View.GONE
+        hideCssFocus()
         web?.let { it.isFocusable = false; it.isFocusableInTouchMode = false }
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_BLOCK_DESCENDANTS
         showControls(); scheduleControlsHide()
     }
     private fun showMappedControls() {
         handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover)
-        positionMappedFocus()
-        mappedFocusView.visibility = View.VISIBLE
+        showCssFocus()
         sendPointerHover()
         // FramexTV currently hides after about three seconds. A second hover at
         // two seconds keeps its bar present until our five-second hover timeout.
@@ -319,22 +303,14 @@ class PlayerActivity : Activity() {
         }
     }
     private fun activeMenuY(): DoubleArray = if(popupOwnerIndex == 2) PlayerSnap.captionsY else PlayerSnap.settingsY
-    private fun positionMappedFocus() {
+    private fun showCssFocus() {
         val w = web ?: return
-        val width = when(snapZone) {
-            1 -> (w.width * 0.07f).toInt().coerceAtLeast(Ui.dp(this,72))
-            2 -> (w.width * 0.30f).toInt().coerceAtLeast(Ui.dp(this,220))
-            else -> (w.width * 0.052f).toInt().coerceAtLeast(Ui.dp(this,56))
-        }
-        val height = when(snapZone) {
-            1 -> (w.height * 0.05f).toInt().coerceAtLeast(Ui.dp(this,30))
-            2 -> (w.height * 0.067f).toInt().coerceAtLeast(Ui.dp(this,44))
-            else -> (w.height * 0.078f).toInt().coerceAtLeast(Ui.dp(this,52))
-        }
-        mappedFocusView.layoutParams = (mappedFocusView.layoutParams as FrameLayout.LayoutParams).apply { this.width = width; this.height = height }
-        mappedFocusView.x = (cursorX - width / 2f).coerceIn(0f,(w.width - width).toFloat())
-        mappedFocusView.y = (cursorY - height / 2f).coerceIn(0f,(w.height - height).toFloat())
+        val x = cursorX / w.width.coerceAtLeast(1)
+        val y = cursorY / w.height.coerceAtLeast(1)
+        val zone = when(snapZone) { 1 -> "timeline"; 2 -> "menu"; else -> "bottom" }
+        w.evaluateJavascript("window.showLumenFocus&&window.showLumenFocus($x,$y,'$zone')",null)
     }
+    private fun hideCssFocus() { web?.evaluateJavascript("window.hideLumenFocus&&window.hideLumenFocus()",null) }
     private fun snapHorizontal(direction: Int) {
         if(snapZone == 0) snapIndex = PlayerSnap.move(snapIndex,direction,bottomSnapX.lastIndex)
         else if(snapZone == 1) {
@@ -475,7 +451,7 @@ class PlayerActivity : Activity() {
         return super.dispatchKeyEvent(event)
     }
     override fun onResume() { super.onResume(); active = true; if(::playButton.isInitialized) { if(!demo && web == null && error == "None") { telemetrySequence = 0; started = SystemClock.elapsedRealtime(); setupWeb() }; web?.onResume(); native?.playWhenReady = !paused; if(!paused) command(JSONObject().put("action","play")); handler.post(tick); showControls(); scheduleControlsHide() } }
-    override fun onPause() { active = false; embeddedMode = false; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover); endPointerHover(); if(::mappedFocusView.isInitialized) mappedFocusView.visibility = View.GONE; native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
+    override fun onPause() { active = false; embeddedMode = false; handler.removeCallbacks(tick); handler.removeCallbacks(hideControls); handler.removeCallbacks(keepMappedControlsAlive); handler.removeCallbacks(endMappedHover); endPointerHover(); hideCssFocus(); native?.pause(); command(JSONObject().put("action","pause")); save(); web?.let { surface.removeView(it); it.stopLoading(); it.destroy() }; web = null; pendingPoll = false; super.onPause() }
     override fun onSaveInstanceState(outState: Bundle) { outState.putDouble("seconds",seconds); outState.putDouble("duration",duration); super.onSaveInstanceState(outState) }
     private fun release() { native?.release(); native = null; web?.let { surface.removeView(it); it.stopLoading(); it.loadUrl("about:blank"); it.destroy() }; web = null }
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); if(::surface.isInitialized) release(); super.onDestroy() }

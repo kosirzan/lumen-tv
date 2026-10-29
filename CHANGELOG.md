@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.10.0 — 2026-10-29
+
+- Remove the separately positioned Android focus square, whose coordinate space
+  could diverge from the scaled WebView on the physical Philips TV.
+- Render a soft animated focus halo in the iframe wrapper's CSS viewport so its
+  center uses the same scaling as the embedded player and real mouse hover.
+- Restore the physical-TV-confirmed responsive control coordinates from 0.8.0
+  and remove the final two positions confirmed to be selectable blank space.
+- Retain separate Settings and Captions row maps and the five-second timeout.
+
 ## 0.9.0 — 2026-10-29
 
 - Add a compact high-contrast blue-white focus glow around the selected embedded
