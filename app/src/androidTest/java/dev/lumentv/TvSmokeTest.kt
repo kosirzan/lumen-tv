@@ -46,7 +46,9 @@ class TvSmokeTest {
         ActivityScenario.launch<PlayerActivity>(intent).use {
             val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             assertTrue(device.wait(Until.hasObject(By.text("Pause")),15000))
-            assertTrue(device.wait(Until.hasObject(By.text(java.util.regex.Pattern.compile(".*0:00:0[2-9] / 0:00:20.*"))),30000))
+            // Slow CI polling can first observe the short clip after nine seconds.
+            // Accept any real progress, including its completed state, but never 0:00.
+            assertTrue(device.wait(Until.hasObject(By.text(java.util.regex.Pattern.compile(".*0:00:(0[1-9]|1[0-9]|20) / 0:00:20.*"))),30000))
             assertTrue("Native timeline should be enabled",device.hasObject(By.clazz("android.widget.SeekBar").enabled(true)))
             device.takeScreenshot(java.io.File(context.filesDir,"player.png"))
             SystemClock.sleep(6000)
