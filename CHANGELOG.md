@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.12.0 — 2026-10-31
+
+- Add a remote-friendly Mapping report that captures the physical display size,
+  density, WebView pixel bounds, browser CSS viewport, iframe rectangle, current
+  navigation point and every saved calibration point.
+- Render the report as a QR code and selectable JSON so a physical-TV result can
+  be photographed and returned for exact diagnosis.
+- Explicitly exclude the TMDB key, watch history and title information from the
+  report; no report is uploaded automatically.
+
 ## 0.11.0 — 2026-10-29
 
 - Replace fixed proportional button maps with a guided, per-TV calibration after

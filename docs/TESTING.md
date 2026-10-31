@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.11.0
+# Testing status — Lumen TV 0.12.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -140,20 +140,27 @@ are saved locally and reused; popup rows are interpolated between the measured
 anchors. Cross-origin iframe isolation prevents reading the provider's DOM bounds
 directly, so this calibration is the secure alternative to another guessed map.
 
+Version 0.12.0 adds a local mapping report for the physical-TV feedback loop. It
+records the Android display and density, WebView bounds, same-origin wrapper CSS
+viewport, iframe rectangle, current navigation point and calibrated coordinates.
+It presents these values as both a QR code and selectable JSON. It cannot and does
+not cross the iframe origin boundary to inspect FramexTV's private DOM. The report
+contains no TMDB credential, title, watch history or automatic network upload.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.11.0-debug.apk`
+- Filename: `Lumen-TV-0.12.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.11.0` / versionCode `11`
-- Size: 7,724,056 bytes
-- SHA-256: `5827860b03c583e8e255dc1a25296f8bbc9635f1db0bee9b5cacddf3ec53c5cb`
+- Version: `0.12.0` / versionCode `12`
+- Size: 8,015,829 bytes
+- SHA-256: `38c15e4fcada239b518a775b28596ec2cb74ff265707bb6d2591c1860bb376b1`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.11.0 APK has the same signing certificate as 0.2.0–0.10.0 and can update them in
+The 0.12.0 APK has the same signing certificate as 0.2.0–0.11.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -162,5 +169,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.11.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.12.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

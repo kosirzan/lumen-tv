@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.graphics.Color
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -22,6 +23,9 @@ import androidx.media3.common.Player
 import androidx.media3.common.PlaybackException
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
+import com.google.zxing.BarcodeFormat
+import com.google.zxing.MultiFormatWriter
+import org.json.JSONArray
 import org.json.JSONObject
 
 /** Native remote controls operate only the provider's documented postMessage API. */
@@ -129,6 +133,7 @@ class PlayerActivity : Activity() {
             controls.addView(playerButton("Subtitles") { chooseSubtitle() })
             controls.addView(playerButton("Framex controls") { enterEmbeddedMode() })
             controls.addView(playerButton("Calibrate") { startCalibration() })
+            controls.addView(playerButton("Mapping report") { mappingReport() })
         }
         controls.addView(playerButton("Retry") { retry() })
         controls.addView(playerButton("Diagnostics") { diagnostics() })
@@ -469,6 +474,46 @@ class PlayerActivity : Activity() {
         val age = if(lastTelemetry == 0L) "None" else "${(SystemClock.elapsedRealtime() - lastTelemetry) / 1000}s ago"
         val text = "Mode: ${if(demo) "Bundled H.264/AAC clip · native Media3" else "FramexTV documented iframe"}\nAndroid: ${android.os.Build.VERSION.RELEASE} / API ${android.os.Build.VERSION.SDK_INT}\nWebView Chrome: $webVersion\nEmbed origin: ${Framex.ORIGIN}\nProvider: $provider\nProgress: ${format(seconds)} / ${format(duration)}\nLast telemetry: $age\nAccepted progress messages: $telemetryMessages\nProvider resources seen: $frameRequests\nProvider HTTP error: $frameHttpError\nProvider TLS error: $tlsError\nConsole errors (contents not retained): $consoleErrors\nRenderer lost: $renderProcessLost\nAvailable memory: ${memory.availMem / 1048576} MiB\nLow memory: ${memory.lowMemory}\nError: $error\n\nTLS validation is never bypassed; failed resources are cancelled. Missing progress telemetry does not mean playback failed; it only disables Lumen's exact timeline and Continue Watching updates. Provider commands have no documented acknowledgement. No video extraction or DRM bypass is performed."
         AlertDialog.Builder(this).setTitle("Player diagnostics").setMessage(text).setPositiveButton("Close",null).show()
+    }
+    private fun mappingReport() {
+        val w = web ?: return
+        val script = """(function(){var f=document.getElementById('player'),r=f&&f.getBoundingClientRect();return JSON.stringify({innerWidth:innerWidth,innerHeight:innerHeight,devicePixelRatio:devicePixelRatio,screenWidth:screen.width,screenHeight:screen.height,iframe:r?{left:r.left,top:r.top,width:r.width,height:r.height}:null})})()"""
+        w.evaluateJavascript(script) { raw ->
+            val browser = runCatching {
+                val decoded = org.json.JSONTokener(raw).nextValue() as? String ?: "{}"
+                JSONObject(decoded)
+            }.getOrDefault(JSONObject())
+            showMappingReport(browser)
+        }
+    }
+    private fun showMappingReport(browser: JSONObject) {
+        val w = web ?: return
+        val metrics = resources.displayMetrics
+        @Suppress("DEPRECATION") val real = android.graphics.Point().also { windowManager.defaultDisplay.getRealSize(it) }
+        val points = calibration?.bottom.orEmpty()
+        val report = JSONObject()
+            .put("schema",1).put("app","0.12.0")
+            .put("android",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("webview",webVersion)
+            .put("display",JSONObject().put("widthPx",real.x).put("heightPx",real.y).put("density",metrics.density.toDouble()).put("densityDpi",metrics.densityDpi))
+            .put("webView",JSONObject().put("widthPx",w.width).put("heightPx",w.height).put("xPx",w.x.toDouble()).put("yPx",w.y.toDouble()))
+            .put("browserViewport",browser)
+            .put("labels",JSONArray(calibrationLabels))
+            .put("bottom",JSONArray(points.map { JSONObject().put("x",it.x).put("y",it.y).put("px",JSONObject().put("x",it.x*w.width).put("y",it.y*w.height)) }))
+            .put("menu",calibration?.let { JSONObject().put("x",it.menuX).put("top",it.menuTop).put("bottom",it.menuBottom) } ?: JSONObject.NULL)
+            .put("current",JSONObject().put("zone",snapZone).put("index",snapIndex).put("xPx",cursorX.toDouble()).put("yPx",cursorY.toDouble()))
+        val encoded = report.toString()
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER; setPadding(Ui.dp(this@PlayerActivity,20),Ui.dp(this@PlayerActivity,12),Ui.dp(this@PlayerActivity,20),Ui.dp(this@PlayerActivity,12))
+            addView(Ui.text(this@PlayerActivity,"Photograph this QR code and upload the photo here. It contains dimensions and click positions only—never your TMDB key.",16f))
+            runCatching { reportQr(encoded) }.getOrNull()?.let { bitmap -> addView(ImageView(this@PlayerActivity).apply { setImageBitmap(bitmap); contentDescription = "Mapping report QR code" },LinearLayout.LayoutParams(Ui.dp(this@PlayerActivity,430),Ui.dp(this@PlayerActivity,430))) }
+            addView(Ui.text(this@PlayerActivity,encoded,11f).apply { setTextIsSelectable(true) })
+        }
+        AlertDialog.Builder(this).setTitle(if(calibration == null) "Mapping report · not calibrated" else "Mapping report · calibrated").setView(ScrollView(this).apply { addView(content) }).setPositiveButton("Close",null).show()
+    }
+    private fun reportQr(value: String): Bitmap {
+        val matrix = MultiFormatWriter().encode(value,BarcodeFormat.QR_CODE,900,900)
+        val pixels = IntArray(matrix.width * matrix.height) { i -> if(matrix[i % matrix.width,i / matrix.width]) Color.BLACK else Color.WHITE }
+        return Bitmap.createBitmap(matrix.width,matrix.height,Bitmap.Config.RGB_565).apply { setPixels(pixels,0,matrix.width,0,0,matrix.width,matrix.height) }
     }
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
