@@ -1,4 +1,4 @@
-# Testing status — Lumen TV 0.13.0
+# Testing status — Lumen TV 0.14.0
 
 28 October 2026. **Installable testing build; end-to-end streaming is not verified.**
 
@@ -9,7 +9,7 @@
 | Kotlin / Android SDK debug build | PASS |
 | Minimum SDK in compiled APK | 23 (Android 6.0) |
 | Target / compile SDK | 35 |
-| JVM unit tests | 15 passed, 0 failed |
+| JVM unit tests | 16 passed, 0 failed |
 | Android lint | 0 errors, 30 warnings |
 | APK signature | Verified; v1 and v2 signatures present |
 | Installation on Android 6 emulator | PASS |
@@ -153,20 +153,27 @@ fixed 240 dp QR code and one summary line, with no scroll container. A compact,
 rounded JSON schema makes the code much less dense; the original full-precision
 JSON remains available through Details.
 
+Version 0.14.0 uses the successfully decoded 0.13.0 QR as a regression fixture.
+The report proved that display/WebView/CSS scaling is exactly 2× and internally
+consistent, but the saved bottom sequence was invalid: 0.848, 0.108, 0.856,
+0.796, 0.840, 0.900, 0.960. Calibration validity now requires a strictly
+left-to-right sequence and checks the expected left/right control groups. The
+invalid stored profile is ignored on load and calibration runs again.
+
 Physical acceptance checklist: [PHYSICAL_TV_CHECKLIST.md](PHYSICAL_TV_CHECKLIST.md).
 Research and exact documented contract: [RESEARCH.md](RESEARCH.md).
 
 ## APK identity
 
-- Filename: `Lumen-TV-0.13.0-debug.apk`
+- Filename: `Lumen-TV-0.14.0-debug.apk`
 - Package: `dev.lumentv`
-- Version: `0.13.0` / versionCode `13`
-- Size: 7,940,456 bytes
-- SHA-256: `0559258d2ca16546e2080c822a0d3c53e0515420b26234c0fbdb147b551dfed7`
+- Version: `0.14.0` / versionCode `14`
+- Size: 7,940,993 bytes
+- SHA-256: `b331b62f0311403914e2add17e8841466815677912b6b3aedea9092746b91bf9`
 
 The APK is debug-signed for sideload testing. No release signing key, TMDB key,
 Android SDK, emulator disk or user account credentials are in the handoff source.
-The 0.13.0 APK has the same signing certificate as 0.2.0–0.12.0 and can update them in
+The 0.14.0 APK has the same signing certificate as 0.2.0–0.13.0 and can update them in
 place. The 0.1.0 key was unavailable, so upgrading directly from 0.1.0 still
 requires uninstalling it first.
 
@@ -175,5 +182,5 @@ requires uninstalling it first.
 `evidence/final/` contains build output, unit-test XML, lint XML/HTML, signature
 verification, compiled manifest badging, installation output, final Android
 instrumentation output and screenshots. The emulator installation/instrumentation
-evidence is from 0.1.0; 0.13.0 was locally compiled, unit-tested, linted, packaged,
+evidence is from 0.1.0; 0.14.0 was locally compiled, unit-tested, linted, packaged,
 and signature-verified. See GitHub Actions for the published commit's CI result.

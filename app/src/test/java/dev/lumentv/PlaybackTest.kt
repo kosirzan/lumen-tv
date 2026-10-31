@@ -26,10 +26,14 @@ class PlaybackTest {
         assertEquals(PlayerSnap.settingsY.lastIndex,PlayerSnap.move(PlayerSnap.settingsY.lastIndex,1,PlayerSnap.settingsY.lastIndex))
     }
     @Test fun learnedPlayerRowsInterpolateFromRealTvAnchors() {
-        val points = List(7) { CalibratedPoint(it / 10.0,0.9) }
+        val points = listOf(0.05,0.11,0.84,0.87,0.90,0.94,0.98).map { CalibratedPoint(it,0.94) }
         val learned = PlayerCalibration(points,0.7,0.3,0.72)
         assertTrue(learned.valid)
         assertArrayEquals(doubleArrayOf(0.3,0.37,0.44,0.51,0.58,0.65,0.72),learned.menuRows(7),0.0001)
+    }
+    @Test fun rejectsOutOfOrderPhysicalTvCalibration() {
+        val qrPoints = listOf(0.848,0.108,0.856,0.796,0.84,0.9,0.96).map { CalibratedPoint(it,0.94) }
+        assertFalse(PlayerCalibration(qrPoints,0.7,0.36,0.76).valid)
     }
     @Test(expected=IllegalArgumentException::class) fun invalidProviderCannotEnterUrl() { Framex.embed(Playback(movie),"x&evil=1") }
     @Test(expected=IllegalArgumentException::class) fun zeroEpisodeIsRejected() { Playback(tv,1,0) }

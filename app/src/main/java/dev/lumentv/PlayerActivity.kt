@@ -77,6 +77,7 @@ class PlayerActivity : Activity() {
     private val calibrationPoints = mutableListOf<CalibratedPoint>()
     private var calibrationMenuTop = CalibratedPoint(0.70,0.36)
     private val calibrationLabels = listOf("Play","Volume","Captions","Settings","Cast","Picture-in-Picture","Fullscreen")
+    private val calibrationGuesses = doubleArrayOf(0.05,0.11,0.84,0.87,0.90,0.94,0.98)
     private val bottomSnapX = PlayerSnap.bottomX
     private val keepMappedControlsAlive = Runnable { if(embeddedMode) sendPointerHover() }
     private val endMappedHover = Runnable { if(embeddedMode) { endPointerHover(); hideCssFocus() } }
@@ -329,12 +330,12 @@ class PlayerActivity : Activity() {
         handler.removeCallbacks(hideControls); setControlsVisible(false)
         surface.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         w.isFocusable = true; w.isFocusableInTouchMode = true; w.requestFocus()
-        cursorX = w.width * 0.04f; cursorY = w.height * 0.94f; snapZone = 0
+        cursorX = (w.width * calibrationGuesses[0]).toFloat(); cursorY = w.height * 0.94f; snapZone = 0
         showCalibrationStep()
     }
     private fun showCalibrationStep() {
         status.visibility = View.VISIBLE
-        status.text = if(calibrationStep < calibrationLabels.size) "Calibrate ${calibrationLabels[calibrationStep]} · arrows place glow · OK saves · Back cancels"
+        status.text = if(calibrationStep < calibrationLabels.size) "${calibrationStep+1}/7 · ${calibrationLabels[calibrationStep]} · arrows place glow · OK saves · Back cancels"
             else if(calibrationStep == calibrationLabels.size) "Calibrate Quality row · arrows place glow · OK saves · Back cancels"
             else "Calibrate Autoplay Next row · arrows place glow · OK saves · Back cancels"
         showMappedControls()
@@ -349,10 +350,13 @@ class PlayerActivity : Activity() {
         val w = web ?: return
         val point = CalibratedPoint((cursorX / w.width.coerceAtLeast(1)).toDouble(),(cursorY / w.height.coerceAtLeast(1)).toDouble())
         if(calibrationStep < calibrationLabels.size) {
+            if(calibrationStep == 0 && point.x >= 0.25) { Toast.makeText(this,"Play must be in the left quarter of the player",Toast.LENGTH_LONG).show(); showCalibrationStep(); return }
+            if(calibrationStep == 1 && point.x >= 0.35) { Toast.makeText(this,"Volume must be in the left part of the player",Toast.LENGTH_LONG).show(); showCalibrationStep(); return }
+            if(calibrationStep == 2 && point.x <= 0.55) { Toast.makeText(this,"Captions must be in the right control group",Toast.LENGTH_LONG).show(); showCalibrationStep(); return }
+            if(calibrationPoints.lastOrNull()?.let { point.x <= it.x + 0.015 } == true) { Toast.makeText(this,"${calibrationLabels[calibrationStep]} must be to the right of ${calibrationLabels[calibrationStep-1]}",Toast.LENGTH_LONG).show(); showCalibrationStep(); return }
             calibrationPoints.add(point); calibrationStep++
             if(calibrationStep < calibrationLabels.size) {
-                val guess = listOf(0.10,0.72,0.78,0.84,0.90,0.96)[calibrationStep - 1]
-                cursorX = (w.width * guess).toFloat(); cursorY = w.height * point.y.toFloat()
+                cursorX = (w.width * calibrationGuesses[calibrationStep]).toFloat(); cursorY = w.height * point.y.toFloat()
             } else {
                 val settings = calibrationPoints[3]
                 cursorX = (w.width * settings.x).toFloat(); cursorY = (w.height * settings.y).toFloat(); clickPointer()
@@ -492,7 +496,7 @@ class PlayerActivity : Activity() {
         @Suppress("DEPRECATION") val real = android.graphics.Point().also { windowManager.defaultDisplay.getRealSize(it) }
         val points = calibration?.bottom.orEmpty()
         val report = JSONObject()
-            .put("schema",1).put("app","0.13.0")
+            .put("schema",1).put("app","0.14.0")
             .put("android",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("webview",webVersion)
             .put("display",JSONObject().put("widthPx",real.x).put("heightPx",real.y).put("density",metrics.density.toDouble()).put("densityDpi",metrics.densityDpi))
             .put("webView",JSONObject().put("widthPx",w.width).put("heightPx",w.height).put("xPx",w.x.toDouble()).put("yPx",w.y.toDouble()))
@@ -503,7 +507,7 @@ class PlayerActivity : Activity() {
             .put("current",JSONObject().put("zone",snapZone).put("index",snapIndex).put("xPx",cursorX.toDouble()).put("yPx",cursorY.toDouble()))
         val encoded = report.toString()
         val compact = JSONObject()
-            .put("v",1).put("a","0.13.0").put("os",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("wv",webVersion)
+            .put("v",1).put("a","0.14.0").put("os",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("wv",webVersion)
             .put("d",JSONArray(listOf(real.x,real.y,metrics.density.toDouble(),metrics.densityDpi)))
             .put("w",JSONArray(listOf(w.width,w.height,w.x.toDouble(),w.y.toDouble())))
             .put("b",JSONArray(listOf(browser.optDouble("innerWidth"),browser.optDouble("innerHeight"),browser.optDouble("devicePixelRatio"),browser.optDouble("screenWidth"),browser.optDouble("screenHeight"))))

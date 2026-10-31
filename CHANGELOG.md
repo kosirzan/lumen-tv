@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.14.0 — 2026-10-31
+
+- Decode the returned physical-TV mapping report and identify the root failure:
+  the seven saved bottom controls were not in left-to-right order (Play was at
+  84.8%, followed by Volume at 10.8%).
+- Reject and automatically discard impossible stored maps, including the profile
+  captured in 0.11.0–0.13.0, so it cannot keep driving incorrect navigation.
+- Start calibration near the observed TV controls and require Play/Volume on the
+  left, Captions in the right control group, and every subsequent control farther
+  right than the previous one.
+- Add numbered calibration steps and regression coverage for the returned QR data.
+
 ## 0.13.0 — 2026-10-31
 
 - Replace the scrollable oversized mapping report with a complete fixed 240 dp

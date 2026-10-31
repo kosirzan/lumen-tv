@@ -19,7 +19,9 @@ object ProgressPolicy {
 }
 data class CalibratedPoint(val x: Double,val y: Double)
 data class PlayerCalibration(val bottom: List<CalibratedPoint>,val menuX: Double,val menuTop: Double,val menuBottom: Double) {
-    val valid: Boolean get() = bottom.size == 7 && bottom.all { it.x in 0.0..1.0 && it.y in 0.0..1.0 } && menuX in 0.0..1.0 && menuTop in 0.0..1.0 && menuBottom in menuTop..1.0
+    val valid: Boolean get() = bottom.size == 7 && bottom.all { it.x in 0.0..1.0 && it.y in 0.75..1.0 } &&
+        bottom.zipWithNext().all { (left,right) -> right.x > left.x + 0.015 } && bottom[0].x < 0.25 && bottom[1].x < 0.35 && bottom[2].x > 0.55 &&
+        menuX in 0.0..1.0 && menuTop in 0.0..1.0 && menuBottom in menuTop..1.0
     fun menuRows(count: Int): DoubleArray = DoubleArray(count) { i -> if(count == 1) menuTop else menuTop + (menuBottom - menuTop) * i / (count - 1) }
 }
 object PlayerSnap {

@@ -1,14 +1,14 @@
 # Downloads
 
-[Download APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.13.0-debug.apk)
+[Download APK](https://github.com/kosirzan/lumen-tv/raw/refs/heads/main/downloads/Lumen-TV-0.14.0-debug.apk)
 
 Direct raw URL for a television browser:
 
-https://raw.githubusercontent.com/kosirzan/lumen-tv/main/downloads/Lumen-TV-0.13.0-debug.apk
+https://raw.githubusercontent.com/kosirzan/lumen-tv/main/downloads/Lumen-TV-0.14.0-debug.apk
 
 This is a debug-signed test build (Android 6.0+), not a verified end-to-end
-streaming release. Version 0.13.0 fits a compact local QR mapping report fully
-on the TV without scrolling. Physical-TV
+streaming release. Version 0.14.0 rejects the diagnosed out-of-order map and
+enforces left-to-right TV control calibration. Physical-TV
 playback checks remain.
 See ../docs/TESTING.md, ../docs/INSTALL.md and SHA256SUMS.txt.
 
