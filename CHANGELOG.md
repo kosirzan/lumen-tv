@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.13.0 — 2026-10-31
+
+- Replace the scrollable oversized mapping report with a complete fixed 240 dp
+  QR code that fits inside the TV dialog without D-pad scrolling.
+- Reduce QR density by using short field names, rounded normalized coordinates
+  and compact arrays while retaining the complete full-precision JSON behind a
+  separate Details button.
+- Keep the report entirely local and preserve all 0.12.0 privacy exclusions.
+
 ## 0.12.0 — 2026-10-31
 
 - Add a remote-friendly Mapping report that captures the physical display size,

@@ -492,7 +492,7 @@ class PlayerActivity : Activity() {
         @Suppress("DEPRECATION") val real = android.graphics.Point().also { windowManager.defaultDisplay.getRealSize(it) }
         val points = calibration?.bottom.orEmpty()
         val report = JSONObject()
-            .put("schema",1).put("app","0.12.0")
+            .put("schema",1).put("app","0.13.0")
             .put("android",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("webview",webVersion)
             .put("display",JSONObject().put("widthPx",real.x).put("heightPx",real.y).put("density",metrics.density.toDouble()).put("densityDpi",metrics.densityDpi))
             .put("webView",JSONObject().put("widthPx",w.width).put("heightPx",w.height).put("xPx",w.x.toDouble()).put("yPx",w.y.toDouble()))
@@ -502,14 +502,26 @@ class PlayerActivity : Activity() {
             .put("menu",calibration?.let { JSONObject().put("x",it.menuX).put("top",it.menuTop).put("bottom",it.menuBottom) } ?: JSONObject.NULL)
             .put("current",JSONObject().put("zone",snapZone).put("index",snapIndex).put("xPx",cursorX.toDouble()).put("yPx",cursorY.toDouble()))
         val encoded = report.toString()
+        val compact = JSONObject()
+            .put("v",1).put("a","0.13.0").put("os",Build.VERSION.RELEASE).put("api",Build.VERSION.SDK_INT).put("wv",webVersion)
+            .put("d",JSONArray(listOf(real.x,real.y,metrics.density.toDouble(),metrics.densityDpi)))
+            .put("w",JSONArray(listOf(w.width,w.height,w.x.toDouble(),w.y.toDouble())))
+            .put("b",JSONArray(listOf(browser.optDouble("innerWidth"),browser.optDouble("innerHeight"),browser.optDouble("devicePixelRatio"),browser.optDouble("screenWidth"),browser.optDouble("screenHeight"))))
+            .put("f",browser.optJSONObject("iframe")?.let { JSONArray(listOf(it.optDouble("left"),it.optDouble("top"),it.optDouble("width"),it.optDouble("height"))) } ?: JSONObject.NULL)
+            .put("p",JSONArray(points.map { JSONArray(listOf(round4(it.x),round4(it.y))) }))
+            .put("m",calibration?.let { JSONArray(listOf(round4(it.menuX),round4(it.menuTop),round4(it.menuBottom))) } ?: JSONObject.NULL)
+            .put("c",JSONArray(listOf(snapZone,snapIndex,round4((cursorX/w.width.coerceAtLeast(1)).toDouble()),round4((cursorY/w.height.coerceAtLeast(1)).toDouble()))))
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; gravity = Gravity.CENTER; setPadding(Ui.dp(this@PlayerActivity,20),Ui.dp(this@PlayerActivity,12),Ui.dp(this@PlayerActivity,20),Ui.dp(this@PlayerActivity,12))
-            addView(Ui.text(this@PlayerActivity,"Photograph this QR code and upload the photo here. It contains dimensions and click positions only—never your TMDB key.",16f))
-            runCatching { reportQr(encoded) }.getOrNull()?.let { bitmap -> addView(ImageView(this@PlayerActivity).apply { setImageBitmap(bitmap); contentDescription = "Mapping report QR code" },LinearLayout.LayoutParams(Ui.dp(this@PlayerActivity,430),Ui.dp(this@PlayerActivity,430))) }
-            addView(Ui.text(this@PlayerActivity,encoded,11f).apply { setTextIsSelectable(true) })
+            addView(Ui.text(this@PlayerActivity,"Photograph the complete square and upload it here. No TMDB key or viewing history is included.",15f).apply { gravity = Gravity.CENTER })
+            runCatching { reportQr(compact.toString()) }.getOrNull()?.let { bitmap -> addView(ImageView(this@PlayerActivity).apply { setImageBitmap(bitmap); contentDescription = "Mapping report QR code" },LinearLayout.LayoutParams(Ui.dp(this@PlayerActivity,240),Ui.dp(this@PlayerActivity,240))) }
+            addView(Ui.text(this@PlayerActivity,"${real.x}×${real.y} display · ${w.width}×${w.height} WebView · ${points.size} saved controls",13f).apply { gravity = Gravity.CENTER })
         }
-        AlertDialog.Builder(this).setTitle(if(calibration == null) "Mapping report · not calibrated" else "Mapping report · calibrated").setView(ScrollView(this).apply { addView(content) }).setPositiveButton("Close",null).show()
+        AlertDialog.Builder(this).setTitle(if(calibration == null) "Mapping report · not calibrated" else "Mapping report · calibrated").setView(content)
+            .setNeutralButton("Details") { _,_ -> AlertDialog.Builder(this).setTitle("Mapping report JSON").setView(ScrollView(this).apply { addView(Ui.text(this@PlayerActivity,encoded,11f).apply { setTextIsSelectable(true); setPadding(Ui.dp(this@PlayerActivity,16),Ui.dp(this@PlayerActivity,12),Ui.dp(this@PlayerActivity,16),Ui.dp(this@PlayerActivity,12)) }) }).setPositiveButton("Close",null).show() }
+            .setPositiveButton("Close",null).show()
     }
+    private fun round4(value: Double): Double = kotlin.math.round(value * 10000.0) / 10000.0
     private fun reportQr(value: String): Bitmap {
         val matrix = MultiFormatWriter().encode(value,BarcodeFormat.QR_CODE,900,900)
         val pixels = IntArray(matrix.width * matrix.height) { i -> if(matrix[i % matrix.width,i / matrix.width]) Color.BLACK else Color.WHITE }
